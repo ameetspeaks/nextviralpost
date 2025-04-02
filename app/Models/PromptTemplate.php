@@ -2,21 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PromptTemplate extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'title',
+        'slug',
         'content',
+        'post_type_id',
+        'tone_id',
         'category',
         'post_goal',
         'virality_factor',
-        'default_hook_id',
         'version',
-        'is_active',
-        'post_type_id',
-        'tone_id'
+        'is_active'
     ];
 
     protected $casts = [
@@ -31,29 +34,27 @@ class PromptTemplate extends Model
 
     public function tone()
     {
-        return $this->belongsTo(Tone::class);
+        return $this->belongsTo(PostTone::class);
     }
 
-    public function hook()
+    public function generatePrompt($userData)
     {
-        return $this->belongsTo(Hook::class, 'default_hook_id');
-    }
-
-    public function generatePrompt(User $user, string $keywords, string $postContent, int $wordLimit): string
-    {
+        $prompt = $this->content;
+        
+        // Replace placeholders with user data
         $replacements = [
-            '{keywords}' => $keywords,
-            '{post_content}' => $postContent,
-            '{word_limit}' => $wordLimit,
-            '{user_name}' => $user->name,
-            '{company_name}' => $user->company_name ?? 'your company',
-            '{industry}' => $user->industry ?? 'your industry'
+            '[Industry]' => $userData['industry'] ?? 'Professional',
+            '[Role]' => $userData['role'] ?? 'Professional',
+            '[What is Post About]' => $userData['content'] ?? '',
+            '{topic}' => $userData['content'] ?? '',
+            '[Keyword(s)]' => $userData['keywords'] ?? '',
+            '[Word Limit]' => $userData['word_limit'] ?? 100
         ];
 
-        return str_replace(
-            array_keys($replacements),
-            array_values($replacements),
-            $this->content
-        );
+        foreach ($replacements as $placeholder => $value) {
+            $prompt = str_replace($placeholder, $value, $prompt);
+        }
+
+        return trim($prompt);
     }
 } 

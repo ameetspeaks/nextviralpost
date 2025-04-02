@@ -7,69 +7,64 @@ use App\Models\PostType;
 
 class PostTypeSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $postTypes = [
             [
-                'name' => 'Industry Trends & Insights',
-                'description' => 'Analysis and commentary on current industry trends and developments'
+                'name' => 'Engagement Post',
+                'slug' => 'engagement-post',
+                'description' => 'Posts designed to encourage audience interaction and engagement',
+                'is_active' => true,
             ],
             [
-                'name' => 'Technical Deep Dives',
-                'description' => 'In-depth technical analysis and explanations'
+                'name' => 'Educational Post',
+                'slug' => 'educational-post',
+                'description' => 'Posts that share knowledge and educate the audience',
+                'is_active' => true,
             ],
             [
-                'name' => 'Security & Compliance',
-                'description' => 'Updates and insights about security and compliance matters'
+                'name' => 'Story Post',
+                'slug' => 'story-post',
+                'description' => 'Posts that tell a compelling story or share experiences',
+                'is_active' => true,
             ],
             [
-                'name' => 'Product Launch / Feature Updates',
-                'description' => 'Announcements and details about new products or features'
+                'name' => 'Question Post',
+                'slug' => 'question-post',
+                'description' => 'Posts that ask questions to engage the audience',
+                'is_active' => true,
             ],
             [
-                'name' => 'Success Stories / Case Studies',
-                'description' => 'Real-world examples and success stories'
+                'name' => 'Tips & Tricks',
+                'slug' => 'tips-tricks',
+                'description' => 'Posts sharing useful tips and tricks',
+                'is_active' => true,
             ],
             [
-                'name' => 'Common Mistakes & Best Practices',
-                'description' => 'Guidance on avoiding common pitfalls and following best practices'
+                'name' => 'Product Launch',
+                'slug' => 'product-launch',
+                'description' => 'Posts announcing or promoting new products',
+                'is_active' => true,
             ],
             [
-                'name' => 'Comparison & Reviews',
-                'description' => 'Comparative analysis and product reviews'
+                'name' => 'Behind the Scenes',
+                'slug' => 'behind-scenes',
+                'description' => 'Posts showing the behind-the-scenes of your business',
+                'is_active' => true,
             ],
             [
-                'name' => 'Hiring & Team Growth',
-                'description' => 'Content about recruitment and team development'
+                'name' => 'Customer Success',
+                'slug' => 'customer-success',
+                'description' => 'Posts highlighting customer success stories',
+                'is_active' => true,
             ],
-            [
-                'name' => 'Customer Testimonials',
-                'description' => 'Customer feedback and success stories'
-            ],
-            [
-                'name' => 'Tips & Hacks',
-                'description' => 'Quick tips and useful hacks for better productivity'
-            ],
-            [
-                'name' => 'Problem-Solution Posts',
-                'description' => 'Addressing common problems with practical solutions'
-            ],
-            [
-                'name' => 'Behind-the-Scenes / Company Culture',
-                'description' => 'Insights into company culture and internal processes'
-            ],
-            [
-                'name' => 'Polls & Discussions',
-                'description' => 'Engaging content to spark discussions and gather opinions'
-            ],
-            [
-                'name' => 'Motivational & Leadership',
-                'description' => 'Inspirational content about leadership and motivation'
-            ]
         ];
 
-        foreach ($postTypes as $type) {
-            PostType::create($type);
+        foreach ($postTypes as $postType) {
+            PostType::updateOrCreate(
+                ['slug' => $postType['slug']],
+                $postType
+            );
         }
     }
 } 

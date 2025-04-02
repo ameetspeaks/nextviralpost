@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PostType extends Model
+class PostTone extends Model
 {
     protected $fillable = [
         'name',
@@ -17,8 +17,8 @@ class PostType extends Model
         'is_active' => 'boolean'
     ];
 
-    public function postGenerators()
+    public function posts()
     {
-        return $this->hasMany(PostGenerator::class);
+        return $this->hasMany(Post::class);
     }
 } 

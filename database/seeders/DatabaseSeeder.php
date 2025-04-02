@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
         // Create superadmin if it doesn't exist
         if (!User::where('email', 'admin@nextviralpost.com')->exists()) {
             User::factory()->create([
-                'full_name' => 'Super Admin',
+                'name' => 'Super Admin',
                 'email' => 'admin@nextviralpost.com',
                 'password' => bcrypt('Admin@123!'),
                 'is_superadmin' => true,
@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         // Create test user if it doesn't exist
         if (!User::where('email', 'test@example.com')->exists()) {
             User::factory()->create([
-                'full_name' => 'Test User',
+                'name' => 'Test User',
                 'email' => 'test@example.com',
             ]);
         }
@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MasterDataSeeder::class,
             PostTypeSeeder::class,
-            ToneSeeder::class,
+            PostToneSeeder::class,
             PromptTemplateSeeder::class,
             ProductLaunchPromptTemplateSeeder::class,
             ViralTemplateSeeder::class,

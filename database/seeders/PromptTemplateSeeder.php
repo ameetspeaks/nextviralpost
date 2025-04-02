@@ -3,91 +3,108 @@
 namespace Database\Seeders;
 
 use App\Models\PostType;
+use App\Models\PostTone;
 use App\Models\PromptTemplate;
-use App\Models\Tone;
 use Illuminate\Database\Seeder;
 
 class PromptTemplateSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        // Ensure post type exists
-        $trendPostType = PostType::firstOrCreate(
-            ['name' => 'Industry Trends & Insights'],
-            [
-                'description' => 'Analysis and commentary on current industry trends and developments',
-                'is_active' => true
-            ]
-        );
-        
-        // Ensure tones exist
-        $professionalTone = Tone::firstOrCreate(
-            ['name' => 'Professional'],
-            [
-                'description' => 'Formal and business-appropriate communication style',
-                'is_active' => true
-            ]
-        );
-        
-        $conversationalTone = Tone::firstOrCreate(
-            ['name' => 'Conversational'],
-            [
-                'description' => 'Friendly and engaging, like talking to a colleague',
-                'is_active' => true
-            ]
-        );
-        
-        $analyticalTone = Tone::firstOrCreate(
-            ['name' => 'Analytical'],
-            [
-                'description' => 'Data-driven and detailed analysis of topics',
-                'is_active' => true
-            ]
-        );
-
-        // Create templates
         $templates = [
             [
-                'title' => 'Professional Industry Trends Analysis',
-                'content' => 'Write a professional LinkedIn post for a [Industry] [Role] analyzing the latest trends in [What is Post About]. Incorporate data-driven insights, industry reports, and expert opinions. Discuss the impact of [Keyword(s)] and provide a well-researched perspective on where the industry is headed. Ensure it is structured, clear, and adds value to professionals in the field. Keep it within [Word Limit] words.',
-                'category' => 'Industry Analysis',
-                'post_goal' => 'Establish thought leadership',
-                'virality_factor' => 'Expert insights and data-driven analysis',
-                'post_type_id' => $trendPostType->id,
-                'tone_id' => $professionalTone->id,
-                'version' => 1
+                'title' => 'Engagement Question',
+                'slug' => 'engagement-question',
+                'content' => 'Create an engaging question about {topic} that will encourage audience participation. The question should be thought-provoking and relevant to the target audience.',
+                'category' => 'Engagement',
+                'post_goal' => 'Increase audience interaction',
+                'virality_factor' => 'Thought-provoking questions',
+                'is_active' => true,
             ],
             [
-                'title' => 'Conversational Industry Trends Discussion',
-                'content' => 'Create a friendly and engaging LinkedIn post as a [Industry] [Role] discussing the exciting trends in [What is Post About]. Share your thoughts on [Keyword(s)] and what they mean for our industry. Make it relatable and conversational while maintaining professionalism. Keep the length to [Word Limit] words.',
-                'category' => 'Industry Analysis',
-                'post_goal' => 'Engage and connect with audience',
-                'virality_factor' => 'Relatable insights and engaging discussion',
-                'post_type_id' => $trendPostType->id,
-                'tone_id' => $conversationalTone->id,
-                'version' => 1
+                'title' => 'Educational Post',
+                'slug' => 'educational-post',
+                'content' => 'Create an educational post about {topic} that explains key concepts in a clear and engaging way. Include practical examples and actionable takeaways.',
+                'category' => 'Education',
+                'post_goal' => 'Share knowledge',
+                'virality_factor' => 'Valuable insights',
+                'is_active' => true,
             ],
             [
-                'title' => 'Analytical Industry Trends Deep Dive',
-                'content' => 'Compose a detailed LinkedIn post analyzing [What is Post About] from a [Industry] [Role] perspective. Deep dive into the data behind [Keyword(s)], examine patterns, and provide quantitative insights. Include relevant statistics and analytical observations. Maintain a clear, logical flow within [Word Limit] words.',
+                'title' => 'Product Launch',
+                'slug' => 'product-launch',
+                'content' => 'Create an exciting product launch announcement for {product_name}. Highlight the key features, benefits, and how it solves customer problems. Include a clear call to action.',
+                'category' => 'Marketing',
+                'post_goal' => 'Product announcement',
+                'virality_factor' => 'Exciting features and benefits',
+                'is_active' => true,
+            ],
+            [
+                'title' => 'Tips & Tricks',
+                'slug' => 'tips-tricks',
+                'content' => 'Create a post sharing {number} practical tips about {topic}. Each tip should be actionable and provide immediate value to the audience.',
+                'category' => 'Tips',
+                'post_goal' => 'Share practical advice',
+                'virality_factor' => 'Actionable tips',
+                'is_active' => true,
+            ],
+            [
+                'title' => 'Success Story',
+                'slug' => 'success-story',
+                'content' => 'Create a compelling success story about how {product/service} helped {customer_type} achieve their goals. Include specific results and testimonials.',
+                'category' => 'Case Study',
+                'post_goal' => 'Share success stories',
+                'virality_factor' => 'Real results and testimonials',
+                'is_active' => true,
+            ],
+            [
+                'title' => 'Behind the Scenes',
+                'slug' => 'behind-scenes',
+                'content' => 'Create a behind-the-scenes post showing {aspect} of our company. Make it personal and engaging while maintaining professionalism.',
+                'category' => 'Company Culture',
+                'post_goal' => 'Show company culture',
+                'virality_factor' => 'Personal insights',
+                'is_active' => true,
+            ],
+            [
+                'title' => 'Problem-Solution',
+                'slug' => 'problem-solution',
+                'content' => 'Create a post addressing the common problem of {problem} in {industry}. Provide practical solutions and explain how {product/service} can help.',
+                'category' => 'Solutions',
+                'post_goal' => 'Problem solving',
+                'virality_factor' => 'Practical solutions',
+                'is_active' => true,
+            ],
+            [
+                'title' => 'Industry Insights',
+                'slug' => 'industry-insights',
+                'content' => 'Create an insightful post about current trends in {industry}. Include data points, expert opinions, and predictions for the future.',
                 'category' => 'Industry Analysis',
-                'post_goal' => 'Provide data-driven insights',
-                'virality_factor' => 'Deep analysis and statistical insights',
-                'post_type_id' => $trendPostType->id,
-                'tone_id' => $analyticalTone->id,
-                'version' => 1
-            ]
+                'post_goal' => 'Share industry trends',
+                'virality_factor' => 'Expert insights',
+                'is_active' => true,
+            ],
         ];
 
+        // Get post types and tones
+        $postTypes = PostType::all()->keyBy('slug');
+        $tones = PostTone::all()->keyBy('slug');
+
         foreach ($templates as $template) {
-            PromptTemplate::firstOrCreate(
-                [
-                    'title' => $template['title'],
-                    'post_type_id' => $template['post_type_id'],
-                    'tone_id' => $template['tone_id']
-                ],
-                $template
-            );
+            // Get matching post type and tone
+            $postType = $postTypes->get($template['slug']);
+            $tone = $tones->get('professional'); // Default to professional tone
+
+            if ($postType && $tone) {
+                $template['post_type_id'] = $postType->id;
+                $template['tone_id'] = $tone->id;
+                $template['version'] = 1;
+
+                PromptTemplate::updateOrCreate(
+                    ['slug' => $template['slug']],
+                    $template
+                );
+            }
         }
     }
 } 

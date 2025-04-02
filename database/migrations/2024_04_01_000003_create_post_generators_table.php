@@ -6,23 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
         Schema::create('post_generators', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('post_type_id')->constrained('post_types')->onDelete('cascade');
-            $table->foreignId('tone_id')->constrained('tones')->onDelete('cascade');
-            $table->string('keywords');
-            $table->text('post_content');
-            $table->integer('word_limit')->default(50);
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('post_type_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('tone_id')->constrained('post_tones')->cascadeOnDelete();
+            $table->string('keywords')->nullable();
+            $table->text('raw_content')->nullable();
+            $table->integer('word_limit')->default(100);
+            $table->text('prompt')->nullable();
             $table->text('generated_content')->nullable();
-            $table->boolean('is_bookmarked')->default(false);
             $table->timestamps();
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::dropIfExists('post_generators');
     }

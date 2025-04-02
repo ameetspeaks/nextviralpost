@@ -18,6 +18,7 @@ class Post extends Model
         'word_limit',
         'prompt',
         'generated_content',
+        'is_bookmarked',
         'feedback',
         'feedback_at',
         'regeneration_attempts'
@@ -42,7 +43,7 @@ class Post extends Model
 
     public function tone()
     {
-        return $this->belongsTo(Tone::class);
+        return $this->belongsTo(PostTone::class);
     }
 
     public function bookmarks()

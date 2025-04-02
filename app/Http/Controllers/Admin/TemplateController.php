@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Template;
-use App\Models\Industry;
+use App\Models\PromptTemplate;
 use App\Models\PostType;
-use App\Models\Tone;
+use App\Models\PostTone;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class TemplateController extends Controller
 {
@@ -18,7 +18,7 @@ class TemplateController extends Controller
      */
     public function index()
     {
-        $templates = Template::with(['industry', 'postType', 'tone'])
+        $templates = PromptTemplate::with(['postType', 'tone'])
             ->latest()
             ->paginate(10);
         return view('admin.templates.index', compact('templates'));
@@ -31,11 +31,9 @@ class TemplateController extends Controller
      */
     public function create()
     {
-        $industries = Industry::where('is_active', true)->get();
         $postTypes = PostType::where('is_active', true)->get();
-        $tones = Tone::where('is_active', true)->get();
-        
-        return view('admin.templates.create', compact('industries', 'postTypes', 'tones'));
+        $tones = PostTone::where('is_active', true)->get();
+        return view('admin.templates.create', compact('postTypes', 'tones'));
     }
 
     /**
@@ -47,18 +45,20 @@ class TemplateController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'industry_id' => 'required|exists:industries,id',
-            'post_type_id' => 'required|exists:post_types,id',
-            'tone_id' => 'required|exists:tones,id',
+            'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'is_active' => 'boolean',
+            'post_type_id' => 'required|exists:post_types,id',
+            'tone_id' => 'required|exists:post_tones,id',
+            'category' => 'required|string|max:255',
+            'post_goal' => 'required|string|max:255',
+            'virality_factor' => 'required|string|max:255',
+            'is_active' => 'boolean'
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
+        $validated['slug'] = Str::slug($validated['title']);
+        $validated['version'] = 1;
 
-        Template::create($validated);
+        PromptTemplate::create($validated);
 
         return redirect()->route('admin.templates.index')
             ->with('success', 'Template created successfully.');
@@ -67,10 +67,10 @@ class TemplateController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Template  $template
+     * @param  \App\Models\PromptTemplate  $template
      * @return \Illuminate\View\View
      */
-    public function show(Template $template)
+    public function show(PromptTemplate $template)
     {
         return view('admin.templates.show', compact('template'));
     }
@@ -78,38 +78,38 @@ class TemplateController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Template  $template
+     * @param  \App\Models\PromptTemplate  $template
      * @return \Illuminate\View\View
      */
-    public function edit(Template $template)
+    public function edit(PromptTemplate $template)
     {
-        $industries = Industry::where('is_active', true)->get();
         $postTypes = PostType::where('is_active', true)->get();
-        $tones = Tone::where('is_active', true)->get();
-        
-        return view('admin.templates.edit', compact('template', 'industries', 'postTypes', 'tones'));
+        $tones = PostTone::where('is_active', true)->get();
+        return view('admin.templates.edit', compact('template', 'postTypes', 'tones'));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Template  $template
+     * @param  \App\Models\PromptTemplate  $template
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Template $template)
+    public function update(Request $request, PromptTemplate $template)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'industry_id' => 'required|exists:industries,id',
-            'post_type_id' => 'required|exists:post_types,id',
-            'tone_id' => 'required|exists:tones,id',
+            'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'is_active' => 'boolean',
+            'post_type_id' => 'required|exists:post_types,id',
+            'tone_id' => 'required|exists:post_tones,id',
+            'category' => 'required|string|max:255',
+            'post_goal' => 'required|string|max:255',
+            'virality_factor' => 'required|string|max:255',
+            'is_active' => 'boolean'
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
+        $validated['slug'] = Str::slug($validated['title']);
+        $validated['version'] = $template->version + 1;
 
         $template->update($validated);
 
@@ -120,13 +120,12 @@ class TemplateController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Template  $template
+     * @param  \App\Models\PromptTemplate  $template
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Template $template)
+    public function destroy(PromptTemplate $template)
     {
         $template->delete();
-
         return redirect()->route('admin.templates.index')
             ->with('success', 'Template deleted successfully.');
     }

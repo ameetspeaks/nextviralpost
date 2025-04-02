@@ -38,7 +38,7 @@ class CreateSuperAdminCommand extends Command
 
         // Create new superadmin user
         $user = User::create([
-            'full_name' => 'Super Admin',
+            'name' => 'Super Admin',
             'email' => $email,
             'password' => Hash::make($password),
             'is_superadmin' => true,

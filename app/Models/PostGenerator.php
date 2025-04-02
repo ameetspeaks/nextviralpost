@@ -2,19 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PostGenerator extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'post_type_id',
         'tone_id',
         'keywords',
-        'post_content',
+        'raw_content',
         'word_limit',
-        'generated_content',
-        'is_bookmarked'
+        'prompt',
+        'generated_content'
     ];
 
     protected $casts = [
@@ -34,6 +37,6 @@ class PostGenerator extends Model
 
     public function tone()
     {
-        return $this->belongsTo(Tone::class);
+        return $this->belongsTo(PostTone::class);
     }
 } 

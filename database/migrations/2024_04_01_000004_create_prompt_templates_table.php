@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('content');
             $table->foreignId('post_type_id')->constrained('post_types')->onDelete('cascade');
-            $table->foreignId('tone_id')->constrained('tones')->onDelete('cascade');
+            $table->foreignId('tone_id')->constrained('post_tones')->onDelete('cascade');
             $table->string('category')->nullable();
             $table->string('post_goal');
             $table->string('virality_factor')->nullable();

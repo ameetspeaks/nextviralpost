@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\PostType;
-use App\Models\Tone;
+use App\Models\PostTone;
 use App\Models\PromptTemplate;
 use App\Models\UserPreference;
 use App\Services\GeminiService;
@@ -27,18 +27,21 @@ class PostGeneratorController extends Controller
     public function index()
     {
         $postTypes = PostType::all();
-        $tones = Tone::all();
+        $tones = PostTone::all();
         return view('post-generator.index', compact('postTypes', 'tones'));
     }
 
     public function generate(Request $request)
     {
         try {
-            Log::info('Starting post generation', ['request' => $request->all()]);
+            Log::info('Starting post generation', [
+                'user_id' => auth()->id(),
+                'request' => $request->all()
+            ]);
 
             $validated = $request->validate([
                 'post_type_id' => 'required|exists:post_types,id',
-                'tone_id' => 'required|exists:tones,id',
+                'tone_id' => 'required|exists:post_tones,id',
                 'keywords' => 'required|string|max:255',
                 'word_limit' => 'required|integer|min:50|max:1000',
                 'raw_content' => 'required|string',
@@ -62,6 +65,8 @@ class PostGeneratorController extends Controller
                 ], 404);
             }
 
+            Log::info('Found template', ['template_id' => $template->id]);
+
             // Get user preferences for industry and role
             $userPreferences = UserPreference::where('user_id', auth()->id())->first();
             if (!$userPreferences) {
@@ -70,6 +75,8 @@ class PostGeneratorController extends Controller
                     'error' => 'User preferences not found. Please complete your profile first.'
                 ], 404);
             }
+
+            Log::info('Found user preferences', ['preferences_id' => $userPreferences->id]);
 
             // Store the original template content
             $originalTemplate = $template->content;
@@ -82,6 +89,7 @@ class PostGeneratorController extends Controller
                 '[Industry]' => $userPreferences->industry->name ?? 'Professional',
                 '[Role]' => $userPreferences->role->name ?? 'Professional',
                 '[What is Post About]' => $validated['raw_content'],
+                '{topic}' => $validated['raw_content'],
                 '[Keyword(s)]' => $validated['keywords'],
                 '[Word Limit]' => $validated['word_limit']
             ];
@@ -100,30 +108,51 @@ class PostGeneratorController extends Controller
                 'replacements' => $replacements
             ]);
 
-            // Generate content using Gemini
-            $generatedContent = $this->geminiService->generateContent($prompt);
+            try {
+                // Generate content using Gemini
+                $generatedContent = $this->geminiService->generateContent($prompt);
+                Log::info('Generated content received', ['content' => $generatedContent]);
+            } catch (\Exception $e) {
+                Log::error('Error generating content with Gemini', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return response()->json([
+                    'error' => 'Failed to generate content. Please try again later.',
+                    'debug' => config('app.debug') ? $e->getMessage() : null
+                ], 500);
+            }
 
-            Log::info('Generated content received', ['content' => $generatedContent]);
+            try {
+                // Create the post
+                $post = Post::create([
+                    'user_id' => auth()->id(),
+                    'post_type_id' => $validated['post_type_id'],
+                    'tone_id' => $validated['tone_id'],
+                    'keywords' => $validated['keywords'],
+                    'raw_content' => $validated['raw_content'],
+                    'word_limit' => $validated['word_limit'],
+                    'prompt' => $prompt,
+                    'generated_content' => $generatedContent,
+                ]);
 
-            // Create the post
-            $post = Post::create([
-                'user_id' => auth()->id(),
-                'post_type_id' => $validated['post_type_id'],
-                'tone_id' => $validated['tone_id'],
-                'keywords' => $validated['keywords'],
-                'raw_content' => $validated['raw_content'],
-                'word_limit' => $validated['word_limit'],
-                'prompt' => $prompt, // Store the processed prompt with user input
-                'generated_content' => $generatedContent,
-            ]);
+                Log::info('Post created successfully', ['post_id' => $post->id]);
 
-            Log::info('Post created successfully', ['post_id' => $post->id]);
-
-            return response()->json([
-                'success' => true,
-                'generated_content' => $generatedContent,
-                'post_id' => $post->id
-            ]);
+                return response()->json([
+                    'success' => true,
+                    'generated_content' => $generatedContent,
+                    'post_id' => $post->id
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Error creating post', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return response()->json([
+                    'error' => 'Failed to save the generated post.',
+                    'debug' => config('app.debug') ? $e->getMessage() : null
+                ], 500);
+            }
 
         } catch (ValidationException $e) {
             Log::error('Validation failed', ['errors' => $e->errors()]);

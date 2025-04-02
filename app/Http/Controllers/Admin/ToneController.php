@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tone;
+use App\Models\PostTone;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ToneController extends Controller
 {
@@ -15,7 +16,7 @@ class ToneController extends Controller
      */
     public function index()
     {
-        $tones = Tone::latest()->paginate(10);
+        $tones = PostTone::latest()->paginate(10);
         return view('admin.tones.index', compact('tones'));
     }
 
@@ -38,14 +39,13 @@ class ToneController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:tones',
+            'name' => 'required|string|max:255|unique:post_tones',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'is_active' => 'boolean'
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
-
-        Tone::create($validated);
+        $validated['slug'] = Str::slug($validated['name']);
+        PostTone::create($validated);
 
         return redirect()->route('admin.tones.index')
             ->with('success', 'Tone created successfully.');
@@ -54,10 +54,10 @@ class ToneController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Tone  $tone
+     * @param  \App\Models\PostTone  $tone
      * @return \Illuminate\View\View
      */
-    public function show(Tone $tone)
+    public function show(PostTone $tone)
     {
         return view('admin.tones.show', compact('tone'));
     }
@@ -65,10 +65,10 @@ class ToneController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Tone  $tone
+     * @param  \App\Models\PostTone  $tone
      * @return \Illuminate\View\View
      */
-    public function edit(Tone $tone)
+    public function edit(PostTone $tone)
     {
         return view('admin.tones.edit', compact('tone'));
     }
@@ -77,19 +77,18 @@ class ToneController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Tone  $tone
+     * @param  \App\Models\PostTone  $tone
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Tone $tone)
+    public function update(Request $request, PostTone $tone)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:tones,name,' . $tone->id,
+            'name' => 'required|string|max:255|unique:post_tones,name,' . $tone->id,
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'is_active' => 'boolean'
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
-
+        $validated['slug'] = Str::slug($validated['name']);
         $tone->update($validated);
 
         return redirect()->route('admin.tones.index')
@@ -99,13 +98,12 @@ class ToneController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Tone  $tone
+     * @param  \App\Models\PostTone  $tone
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Tone $tone)
+    public function destroy(PostTone $tone)
     {
         $tone->delete();
-
         return redirect()->route('admin.tones.index')
             ->with('success', 'Tone deleted successfully.');
     }

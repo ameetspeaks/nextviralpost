@@ -4,8 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\PostType;
 use App\Models\PromptTemplate;
-use App\Models\Tone;
+use App\Models\PostTone;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ProductLaunchPromptTemplateSeeder extends Seeder
 {
@@ -15,6 +16,7 @@ class ProductLaunchPromptTemplateSeeder extends Seeder
         $productLaunchType = PostType::firstOrCreate(
             ['name' => 'Product Launch / Feature Updates'],
             [
+                'slug' => 'product-launch-feature-updates',
                 'description' => 'Announcements and details about new products or features',
                 'is_active' => true
             ]
@@ -106,9 +108,10 @@ class ProductLaunchPromptTemplateSeeder extends Seeder
 
         // Create templates
         foreach ($templates as $template) {
-            $tone = Tone::firstOrCreate(
+            $tone = PostTone::firstOrCreate(
                 ['name' => $template['tone']],
                 [
+                    'slug' => Str::slug($template['tone']),
                     'description' => 'Auto-generated tone for ' . $template['tone'],
                     'is_active' => true
                 ]
@@ -121,6 +124,7 @@ class ProductLaunchPromptTemplateSeeder extends Seeder
                     'tone_id' => $tone->id
                 ],
                 [
+                    'slug' => Str::slug($template['title']),
                     'content' => $template['content'],
                     'category' => $template['category'],
                     'post_goal' => $template['post_goal'],

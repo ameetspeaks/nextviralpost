@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Template;
-use App\Models\Industry;
+use App\Models\Post;
 use App\Models\PostType;
-use App\Models\Tone;
+use App\Models\PostTone;
+use App\Models\PromptTemplate;
 use Illuminate\Http\Request;
 
 class SuperAdminController extends Controller
@@ -29,30 +29,18 @@ class SuperAdminController extends Controller
      */
     public function dashboard()
     {
-        // Get counts for dashboard cards
         $userCount = User::count();
+        $postCount = Post::count();
         $postTypeCount = PostType::count();
-        $toneCount = Tone::count();
-        $industryCount = Industry::count();
-        
-        // Get recent templates
-        $recentTemplates = Template::with('industry')
-            ->latest()
-            ->take(5)
-            ->get();
-            
-        // Get recent users
-        $recentUsers = User::latest()
-            ->take(5)
-            ->get();
-            
+        $toneCount = PostTone::count();
+        $templateCount = PromptTemplate::count();
+
         return view('admin.dashboard', compact(
             'userCount',
+            'postCount',
             'postTypeCount',
             'toneCount',
-            'industryCount',
-            'recentTemplates',
-            'recentUsers'
+            'templateCount'
         ));
     }
 } 
