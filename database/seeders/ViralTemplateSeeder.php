@@ -4,12 +4,18 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\ViralTemplate;
+use App\Models\PostType;
+use App\Models\PostTone;
 use Carbon\Carbon;
 
 class ViralTemplateSeeder extends Seeder
 {
     public function run()
     {
+        // Get some post types and tones for reference
+        $postTypes = PostType::all();
+        $tones = PostTone::all();
+
         $templates = [
             [
                 'username' => 'Peredox Digital',
@@ -20,7 +26,10 @@ class ViralTemplateSeeder extends Seeder
                 'shares' => 1,
                 'date_posted' => Carbon::now()->subYears(3),
                 'bookmark_count' => 5,
-                'inspiration_count' => 2
+                'inspiration_count' => 2,
+                'post_type_id' => $postTypes->first()?->id,
+                'tone_id' => $tones->first()?->id,
+                'is_active' => true
             ],
             [
                 'username' => 'GREG ISENBERG',
@@ -31,7 +40,10 @@ class ViralTemplateSeeder extends Seeder
                 'shares' => 86,
                 'date_posted' => Carbon::now()->subMonths(7),
                 'bookmark_count' => 120,
-                'inspiration_count' => 45
+                'inspiration_count' => 45,
+                'post_type_id' => $postTypes->skip(1)->first()?->id,
+                'tone_id' => $tones->skip(1)->first()?->id,
+                'is_active' => true
             ],
             [
                 'username' => 'Ubaid Ur Rehman',
@@ -42,8 +54,39 @@ class ViralTemplateSeeder extends Seeder
                 'shares' => 4,
                 'date_posted' => Carbon::now()->subYear(),
                 'bookmark_count' => 25,
-                'inspiration_count' => 12
+                'inspiration_count' => 12,
+                'post_type_id' => $postTypes->skip(2)->first()?->id,
+                'tone_id' => $tones->skip(2)->first()?->id,
+                'is_active' => true
             ],
+            [
+                'username' => 'Alex Hormozi',
+                'post_content' => "The secret to viral content:\n\n1. Solve a real problem\n2. Make it simple to understand\n3. Share your unique perspective\n4. Be consistent\n\nThat's it. No magic formula.",
+                'post_link' => 'https://linkedin.com/post/4',
+                'likes' => 2500,
+                'comments' => 180,
+                'shares' => 320,
+                'date_posted' => Carbon::now()->subMonths(2),
+                'bookmark_count' => 450,
+                'inspiration_count' => 280,
+                'post_type_id' => $postTypes->first()?->id,
+                'tone_id' => $tones->first()?->id,
+                'is_active' => true
+            ],
+            [
+                'username' => 'Sahil Bloom',
+                'post_content' => "10 lessons I learned from building a $100M business:\n\n1. Focus on distribution\n2. Build in public\n3. Network effectively\n4. Stay consistent\n5. Learn from failures\n\n(Thread) 🧵",
+                'post_link' => 'https://linkedin.com/post/5',
+                'likes' => 3200,
+                'comments' => 420,
+                'shares' => 580,
+                'date_posted' => Carbon::now()->subMonths(1),
+                'bookmark_count' => 680,
+                'inspiration_count' => 420,
+                'post_type_id' => $postTypes->skip(1)->first()?->id,
+                'tone_id' => $tones->skip(1)->first()?->id,
+                'is_active' => true
+            ]
         ];
 
         foreach ($templates as $template) {

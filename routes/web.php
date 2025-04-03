@@ -54,7 +54,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Profile Routes
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -86,30 +87,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('social.post');
 });
 
-// Admin Routes
-Route::middleware(['auth', 'verified', 'superadmin'])->prefix('admin')->group(function () {
-    Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
-    
-    // Add more admin routes here as needed
-});
-
-// Superadmin Routes
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'superadmin'])->group(function () {
-    // Dashboard
-    Route::get('/dashboard-sa', [App\Http\Controllers\Admin\SuperAdminController::class, 'dashboard'])->name('dashboard');
-    
-    // Users
-    Route::resource('users', App\Http\Controllers\Admin\UserController::class);
-    
-    // Post Types
-    Route::resource('post-types', App\Http\Controllers\Admin\PostTypeController::class);
-    
-    // Tones
-    Route::resource('tones', App\Http\Controllers\Admin\ToneController::class);
-    
-    // Industries
-    Route::resource('industries', App\Http\Controllers\Admin\IndustryController::class);
-    
-    // Templates (Viral Recipes)
-    Route::resource('templates', App\Http\Controllers\Admin\TemplateController::class);
-});
+// Admin routes are now in routes/admin.php

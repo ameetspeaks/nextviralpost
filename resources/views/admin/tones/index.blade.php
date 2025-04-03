@@ -1,3 +1,7 @@
+@php
+use Illuminate\Support\Str;
+@endphp
+
 @extends('layouts.superadmin')
 
 @section('title', 'Tones Management')
@@ -34,9 +38,16 @@
                         <div class="text-sm text-gray-500">{{ Str::limit($tone->description, 50) }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $tone->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                            {{ $tone->is_active ? 'Active' : 'Inactive' }}
-                        </span>
+                        <form action="{{ route('admin.tones.toggle-status', $tone) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 {{ $tone->is_active ? 'bg-indigo-600' : 'bg-gray-200' }}" role="switch" aria-checked="{{ $tone->is_active ? 'true' : 'false' }}">
+                                <span class="sr-only">Toggle status</span>
+                                <span aria-hidden="true" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $tone->is_active ? 'translate-x-5' : 'translate-x-0' }}"></span>
+                            </button>
+                            <span class="ml-2 text-sm {{ $tone->is_active ? 'text-green-600' : 'text-gray-500' }}">
+                                {{ $tone->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </form>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {{ $tone->created_at->format('M d, Y') }}

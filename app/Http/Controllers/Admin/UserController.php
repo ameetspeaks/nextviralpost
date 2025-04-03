@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Industry;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -63,7 +65,9 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return view('admin.users.show', compact('user'));
+        $industries = Industry::where('is_active', true)->get();
+        $roles = Role::where('is_active', true)->get();
+        return view('admin.users.show', compact('user', 'industries', 'roles'));
     }
 
     /**
@@ -125,5 +129,47 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User deleted successfully.');
+    }
+
+    /**
+     * Store user preferences.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storePreferences(User $user)
+    {
+        $user->preference()->create([
+            'industry_id' => null,
+            'role_id' => null,
+            'onboarding_completed' => false,
+        ]);
+
+        return redirect()->route('admin.users.show', $user)
+            ->with('success', 'User preferences initialized successfully.');
+    }
+
+    /**
+     * Update user preferences.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updatePreferences(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'industry_id' => 'nullable|exists:industries,id',
+            'role_id' => 'nullable|exists:roles,id',
+            'onboarding_completed' => 'boolean',
+        ]);
+
+        $user->preference()->updateOrCreate(
+            ['user_id' => $user->id],
+            $validated
+        );
+
+        return redirect()->route('admin.users.show', $user)
+            ->with('success', 'User preferences updated successfully.');
     }
 }

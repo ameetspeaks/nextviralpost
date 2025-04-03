@@ -26,145 +26,77 @@ class PostGeneratorController extends Controller
 
     public function index()
     {
-        $postTypes = PostType::all();
-        $tones = PostTone::all();
+        $postTypes = PostType::where('is_active', true)->get();
+        $tones = PostTone::where('is_active', true)->get();
         return view('post-generator.index', compact('postTypes', 'tones'));
     }
 
     public function generate(Request $request)
     {
         try {
-            Log::info('Starting post generation', [
-                'user_id' => auth()->id(),
-                'request' => $request->all()
-            ]);
-
+            // Validate request
             $validated = $request->validate([
                 'post_type_id' => 'required|exists:post_types,id',
                 'tone_id' => 'required|exists:post_tones,id',
                 'keywords' => 'required|string|max:255',
-                'word_limit' => 'required|integer|min:50|max:1000',
                 'raw_content' => 'required|string',
+                'word_limit' => 'required|integer|min:50|max:300'
             ]);
 
-            Log::info('Validation passed', ['validated' => $validated]);
+            // Get user preferences
+            $userPreferences = UserPreference::where('user_id', auth()->id())->first();
+            if (!$userPreferences) {
+                return response()->json([
+                    'error' => 'User preferences not found. Please complete your profile first.'
+                ], 404);
+            }
 
-            // Get the prompt template
+            // Find the appropriate prompt template
             $template = PromptTemplate::where('post_type_id', $validated['post_type_id'])
                 ->where('tone_id', $validated['tone_id'])
                 ->where('is_active', true)
                 ->first();
 
             if (!$template) {
-                Log::error('No active prompt template found', [
-                    'post_type_id' => $validated['post_type_id'],
-                    'tone_id' => $validated['tone_id']
-                ]);
                 return response()->json([
                     'error' => 'No active prompt template found for the selected post type and tone combination.'
                 ], 404);
             }
 
-            Log::info('Found template', ['template_id' => $template->id]);
-
-            // Get user preferences for industry and role
-            $userPreferences = UserPreference::where('user_id', auth()->id())->first();
-            if (!$userPreferences) {
-                Log::error('User preferences not found', ['user_id' => auth()->id()]);
-                return response()->json([
-                    'error' => 'User preferences not found. Please complete your profile first.'
-                ], 404);
-            }
-
-            Log::info('Found user preferences', ['preferences_id' => $userPreferences->id]);
-
-            // Store the original template content
-            $originalTemplate = $template->content;
-
-            // Replace placeholders in the correct order
-            $prompt = $template->content;
-            
-            // Replace placeholders with user data
-            $replacements = [
-                '[Industry]' => $userPreferences->industry->name ?? 'Professional',
-                '[Role]' => $userPreferences->role->name ?? 'Professional',
-                '[What is Post About]' => $validated['raw_content'],
-                '{topic}' => $validated['raw_content'],
-                '[Keyword(s)]' => $validated['keywords'],
-                '[Word Limit]' => $validated['word_limit']
+            // Prepare user data for prompt generation
+            $userData = [
+                'raw_content' => $validated['raw_content'],
+                'keywords' => $validated['keywords'],
+                'word_limit' => $validated['word_limit'],
+                'post_type_id' => $validated['post_type_id'],
+                'tone_id' => $validated['tone_id']
             ];
 
-            foreach ($replacements as $placeholder => $value) {
-                $prompt = str_replace($placeholder, $value, $prompt);
-            }
+            // Generate the prompt using the template
+            $prompt = $template->generatePrompt($userData);
 
-            // Clean up any double spaces or empty lines
-            $prompt = preg_replace('/\s+/', ' ', $prompt);
-            $prompt = trim($prompt);
+            // Generate content using Gemini
+            $generatedContent = $this->geminiService->generateContent($prompt);
 
-            Log::info('Generated prompt', [
-                'original_template' => $originalTemplate,
-                'processed_prompt' => $prompt,
-                'replacements' => $replacements
+            // Create the post
+            $post = Post::create([
+                'user_id' => auth()->id(),
+                'post_type_id' => $validated['post_type_id'],
+                'tone_id' => $validated['tone_id'],
+                'keywords' => $validated['keywords'],
+                'raw_content' => $validated['raw_content'],
+                'word_limit' => $validated['word_limit'],
+                'prompt' => $prompt,
+                'generated_content' => $generatedContent,
+                'regeneration_attempts' => 0
             ]);
 
-            try {
-                // Generate content using Gemini
-                $generatedContent = $this->geminiService->generateContent($prompt);
-                Log::info('Generated content received', ['content' => $generatedContent]);
-            } catch (\Exception $e) {
-                Log::error('Error generating content with Gemini', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                return response()->json([
-                    'error' => 'Failed to generate content. Please try again later.',
-                    'debug' => config('app.debug') ? $e->getMessage() : null
-                ], 500);
-            }
-
-            try {
-                // Create the post
-                $post = Post::create([
-                    'user_id' => auth()->id(),
-                    'post_type_id' => $validated['post_type_id'],
-                    'tone_id' => $validated['tone_id'],
-                    'keywords' => $validated['keywords'],
-                    'raw_content' => $validated['raw_content'],
-                    'word_limit' => $validated['word_limit'],
-                    'prompt' => $prompt,
-                    'generated_content' => $generatedContent,
-                ]);
-
-                Log::info('Post created successfully', ['post_id' => $post->id]);
-
-                return response()->json([
-                    'success' => true,
-                    'generated_content' => $generatedContent,
-                    'post_id' => $post->id
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Error creating post', [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                return response()->json([
-                    'error' => 'Failed to save the generated post.',
-                    'debug' => config('app.debug') ? $e->getMessage() : null
-                ], 500);
-            }
-
-        } catch (ValidationException $e) {
-            Log::error('Validation failed', ['errors' => $e->errors()]);
             return response()->json([
-                'error' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (ModelNotFoundException $e) {
-            Log::error('Model not found', ['error' => $e->getMessage()]);
-            return response()->json([
-                'error' => 'Required data not found'
-            ], 404);
+                'success' => true,
+                'post_id' => $post->id,
+                'generated_content' => $generatedContent
+            ]);
+
         } catch (\Exception $e) {
             Log::error('Error generating post', [
                 'error' => $e->getMessage(),
@@ -172,8 +104,7 @@ class PostGeneratorController extends Controller
             ]);
             return response()->json([
                 'error' => 'An error occurred while generating the post',
-                'message' => $e->getMessage(),
-                'debug' => config('app.debug') ? $e->getTraceAsString() : null
+                'message' => $e->getMessage()
             ], 500);
         }
     }
@@ -222,9 +153,16 @@ class PostGeneratorController extends Controller
                 'feedback_at' => now()
             ]);
 
+            // If feedback is negative and regeneration attempts are less than 2, allow regeneration
+            $canRegenerate = false;
+            if ($validated['feedback'] === 'negative' && $post->regeneration_attempts < 2) {
+                $canRegenerate = true;
+            }
+
             return response()->json([
                 'success' => true,
-                'message' => 'Feedback recorded successfully'
+                'message' => 'Feedback recorded successfully',
+                'can_regenerate' => $canRegenerate
             ]);
         } catch (\Exception $e) {
             Log::error('Error recording feedback: ' . $e->getMessage());

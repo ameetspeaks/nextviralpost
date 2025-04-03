@@ -83,37 +83,24 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            
-            // Check if user has completed onboarding
-            $redirect = $request->user()->hasCompletedOnboarding() 
-                ? route('dashboard') 
-                : route('onboarding');
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Login successful!',
-                'redirect' => $redirect
-            ]);
+            if (Auth::user()->is_superadmin) {
+                return redirect()->intended(route('admin.dashboard-sa'));
+            }
+
+            return redirect()->intended(route('dashboard'));
         }
 
-        return response()->json([
-            'success' => false,
-            'errors' => ['email' => ['These credentials do not match our records.']]
-        ], 422);
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
     }
 
     /**

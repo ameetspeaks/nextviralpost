@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Industry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class IndustryController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
+     * Display a listing of the industries.
      */
     public function index()
     {
@@ -20,9 +19,7 @@ class IndustryController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
+     * Show the form for creating a new industry.
      */
     public function create()
     {
@@ -30,10 +27,7 @@ class IndustryController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Store a newly created industry in storage.
      */
     public function store(Request $request)
     {
@@ -43,8 +37,7 @@ class IndustryController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
-
+        $validated['slug'] = Str::slug($validated['name']);
         Industry::create($validated);
 
         return redirect()->route('admin.industries.index')
@@ -52,10 +45,7 @@ class IndustryController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Industry  $industry
-     * @return \Illuminate\View\View
+     * Display the specified industry.
      */
     public function show(Industry $industry)
     {
@@ -63,10 +53,7 @@ class IndustryController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Industry  $industry
-     * @return \Illuminate\View\View
+     * Show the form for editing the specified industry.
      */
     public function edit(Industry $industry)
     {
@@ -74,11 +61,7 @@ class IndustryController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Industry  $industry
-     * @return \Illuminate\Http\RedirectResponse
+     * Update the specified industry in storage.
      */
     public function update(Request $request, Industry $industry)
     {
@@ -88,8 +71,7 @@ class IndustryController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
-
+        $validated['slug'] = Str::slug($validated['name']);
         $industry->update($validated);
 
         return redirect()->route('admin.industries.index')
@@ -97,10 +79,7 @@ class IndustryController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Industry  $industry
-     * @return \Illuminate\Http\RedirectResponse
+     * Remove the specified industry from storage.
      */
     public function destroy(Industry $industry)
     {
@@ -108,5 +87,18 @@ class IndustryController extends Controller
 
         return redirect()->route('admin.industries.index')
             ->with('success', 'Industry deleted successfully.');
+    }
+
+    /**
+     * Toggle the active status of the specified industry.
+     *
+     * @param  \App\Models\Industry  $industry
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function toggleStatus(Industry $industry)
+    {
+        $industry->update(['is_active' => !$industry->is_active]);
+        return redirect()->route('admin.industries.index')
+            ->with('success', 'Industry status updated successfully.');
     }
 }

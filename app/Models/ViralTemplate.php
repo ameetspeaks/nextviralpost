@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ViralTemplate extends Model
 {
@@ -17,19 +18,29 @@ class ViralTemplate extends Model
         'likes',
         'comments',
         'shares',
-        'date_posted',
-        'bookmark_count',
-        'inspiration_count'
+        'post_type_id',
+        'tone_id',
+        'is_active',
+        'date_posted'
     ];
 
     protected $casts = [
-        'date_posted' => 'datetime',
         'likes' => 'integer',
         'comments' => 'integer',
         'shares' => 'integer',
-        'bookmark_count' => 'integer',
-        'inspiration_count' => 'integer'
+        'is_active' => 'boolean',
+        'date_posted' => 'datetime'
     ];
+
+    public function postType()
+    {
+        return $this->belongsTo(PostType::class);
+    }
+
+    public function tone()
+    {
+        return $this->belongsTo(PostTone::class);
+    }
 
     public function interactions()
     {

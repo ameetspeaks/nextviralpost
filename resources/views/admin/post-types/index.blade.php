@@ -1,6 +1,9 @@
+@php
+use Illuminate\Support\Str;
+@endphp
 @extends('layouts.superadmin')
 
-@section('title', 'Post Types Management')
+@section('title', 'Post Types')
 
 @section('content')
 <div class="bg-white shadow-md rounded-lg overflow-hidden">
@@ -20,43 +23,41 @@
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($postTypes as $postType)
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">{{ $postType->name }}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="text-sm text-gray-500">{{ Str::limit($postType->description, 50) }}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $postType->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                            {{ $postType->is_active ? 'Active' : 'Inactive' }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ $postType->created_at->format('M d, Y') }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div class="flex justify-end space-x-2">
-                            <a href="{{ route('admin.post-types.show', $postType) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
-                            <a href="{{ route('admin.post-types.edit', $postType) }}" class="text-blue-600 hover:text-blue-900">Edit</a>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $postType->name }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ Str::limit($postType->description, 100) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <form action="{{ route('admin.post-types.toggle-status', $postType) }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 {{ $postType->is_active ? 'bg-indigo-600' : 'bg-gray-200' }}" role="switch" aria-checked="{{ $postType->is_active ? 'true' : 'false' }}">
+                                    <span class="sr-only">Toggle status</span>
+                                    <span aria-hidden="true" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $postType->is_active ? 'translate-x-5' : 'translate-x-0' }}"></span>
+                                </button>
+                                <span class="ml-2 text-sm {{ $postType->is_active ? 'text-green-600' : 'text-gray-500' }}">
+                                    {{ $postType->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </form>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $postType->created_at->format('M d, Y') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{{ route('admin.post-types.edit', $postType) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
                             <form action="{{ route('admin.post-types.destroy', $postType) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this post type?')">Delete</button>
                             </form>
-                        </div>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
                 @empty
-                <tr>
-                    <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No post types found</td>
-                </tr>
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No post types found.</td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>

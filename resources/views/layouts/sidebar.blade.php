@@ -2,10 +2,10 @@
     <!-- Logo -->
     <div class="p-4">
         <div class="flex items-center space-x-2">
-            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-8 h-8 gradient-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <span class="text-xl font-bold text-gray-900">NextViralPost</span>
+            <span class="text-xl font-bold gradient-text">NextViralPost</span>
         </div>
     </div>
 
@@ -14,7 +14,7 @@
         <div class="px-4 space-y-1">
             <!-- Dashboard -->
             <a href="{{ route('dashboard') }}" 
-               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('dashboard') ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100' }}">
+               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('dashboard') ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                 </svg>
@@ -23,7 +23,7 @@
 
             <!-- Generate Post -->
             <a href="{{ route('post-generator.index') }}"
-               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('post-generator.*') ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100' }}">
+               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('post-generator.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                 </svg>
@@ -32,7 +32,7 @@
 
             <!-- Viral Recipe -->
             <a href="{{ route('viral-content.index') }}"
-               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('viral-content.*') ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100' }}">
+               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('viral-content.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                 </svg>
@@ -41,7 +41,7 @@
 
             <!-- Bookmarks -->
             <a href="{{ route('bookmarks.index') }}"
-               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('bookmarks.*') ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100' }}">
+               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('bookmarks.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                 </svg>
@@ -50,7 +50,7 @@
 
             <!-- My Posts -->
             <a href="{{ route('my-posts.index') }}"
-               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('my-posts.*') ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100' }}">
+               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('my-posts.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15"></path>
                 </svg>
@@ -59,7 +59,7 @@
 
             <!-- Profile -->
             <a href="{{ route('profile.edit') }}"
-               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('profile.*') ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100' }}">
+               class="flex items-center px-4 py-2 text-sm font-medium rounded-lg {{ request()->routeIs('profile.*') ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
@@ -72,8 +72,8 @@
     <div class="absolute bottom-0 w-full p-4 border-t">
         <div class="flex items-center space-x-3">
             <div class="flex-shrink-0">
-                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                    <span class="text-purple-700 font-medium">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <span class="text-blue-700 font-medium">{{ substr(Auth::user()->name, 0, 1) }}</span>
                 </div>
             </div>
             <div class="flex-1 min-w-0">

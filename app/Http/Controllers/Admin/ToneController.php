@@ -10,9 +10,7 @@ use Illuminate\Support\Str;
 class ToneController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\View\View
+     * Display a listing of the tones.
      */
     public function index()
     {
@@ -21,9 +19,7 @@ class ToneController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\View\View
+     * Show the form for creating a new tone.
      */
     public function create()
     {
@@ -31,17 +27,14 @@ class ToneController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Store a newly created tone in storage.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:post_tones',
             'description' => 'nullable|string',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -52,10 +45,7 @@ class ToneController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\PostTone  $tone
-     * @return \Illuminate\View\View
+     * Display the specified tone.
      */
     public function show(PostTone $tone)
     {
@@ -63,10 +53,7 @@ class ToneController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\PostTone  $tone
-     * @return \Illuminate\View\View
+     * Show the form for editing the specified tone.
      */
     public function edit(PostTone $tone)
     {
@@ -74,18 +61,14 @@ class ToneController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\PostTone  $tone
-     * @return \Illuminate\Http\RedirectResponse
+     * Update the specified tone in storage.
      */
     public function update(Request $request, PostTone $tone)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:post_tones,name,' . $tone->id,
             'description' => 'nullable|string',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -96,15 +79,26 @@ class ToneController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\PostTone  $tone
-     * @return \Illuminate\Http\RedirectResponse
+     * Remove the specified tone from storage.
      */
     public function destroy(PostTone $tone)
     {
         $tone->delete();
+
         return redirect()->route('admin.tones.index')
             ->with('success', 'Tone deleted successfully.');
+    }
+
+    /**
+     * Toggle the active status of the specified tone.
+     *
+     * @param  \App\Models\PostTone  $tone
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function toggleStatus(PostTone $tone)
+    {
+        $tone->update(['is_active' => !$tone->is_active]);
+        return redirect()->route('admin.tones.index')
+            ->with('success', 'Tone status updated successfully.');
     }
 } 

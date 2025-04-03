@@ -68,9 +68,4 @@ class Kernel extends HttpKernel
         'firebase.auth' => \App\Http\Middleware\FirebaseAuthentication::class,
         'onboarding' => \App\Http\Middleware\EnsureOnboardingIsComplete::class,
     ];
-
-    protected $routeMiddleware = [
-        // ... existing middleware ...
-        'onboarding' => \App\Http\Middleware\EnsureOnboardingIsComplete::class,
-    ];
 } 

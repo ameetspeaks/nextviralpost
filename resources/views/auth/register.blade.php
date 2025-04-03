@@ -143,24 +143,19 @@
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: formData
+                body: JSON.stringify(Object.fromEntries(formData))
             })
             .then(response => {
                 if (!response.ok) {
                     if (response.status === 419) {
                         throw new Error('CSRF token mismatch. Please refresh the page and try again.');
                     }
-                    // Check if response is JSON
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json().then(data => {
-                            throw new Error(data.message || 'An error occurred');
-                        });
-                    } else {
-                        throw new Error('Server error. Please try again.');
-                    }
+                    return response.json().then(data => {
+                        throw new Error(data.message || 'An error occurred');
+                    });
                 }
                 return response.json();
             })

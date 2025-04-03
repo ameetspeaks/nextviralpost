@@ -109,4 +109,17 @@ class PostTypeController extends Controller
         return redirect()->route('admin.post-types.index')
             ->with('success', 'Post type deleted successfully.');
     }
+
+    /**
+     * Toggle the active status of the specified post type.
+     *
+     * @param  \App\Models\PostType  $postType
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function toggleStatus(PostType $postType)
+    {
+        $postType->update(['is_active' => !$postType->is_active]);
+        return redirect()->route('admin.post-types.index')
+            ->with('success', 'Post type status updated successfully.');
+    }
 } 

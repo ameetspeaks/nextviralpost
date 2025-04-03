@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Post;
+use App\Models\ViralTemplate;
 use App\Models\PostType;
 use App\Models\PostTone;
-use App\Models\PromptTemplate;
 use Illuminate\Http\Request;
 
 class SuperAdminController extends Controller
@@ -30,17 +29,20 @@ class SuperAdminController extends Controller
     public function dashboard()
     {
         $userCount = User::count();
-        $postCount = Post::count();
         $postTypeCount = PostType::count();
         $toneCount = PostTone::count();
-        $templateCount = PromptTemplate::count();
+        $templateCount = ViralTemplate::count();
 
-        return view('admin.dashboard', compact(
+        $recentUsers = User::latest()->take(5)->get();
+        $recentTemplates = ViralTemplate::latest()->take(5)->get();
+
+        return view('superadmin.dashboard', compact(
             'userCount',
-            'postCount',
             'postTypeCount',
             'toneCount',
-            'templateCount'
+            'templateCount',
+            'recentUsers',
+            'recentTemplates'
         ));
     }
 } 

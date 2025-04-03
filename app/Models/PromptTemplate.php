@@ -41,20 +41,42 @@ class PromptTemplate extends Model
     {
         $prompt = $this->content;
         
+        // Get user preferences for industry and role
+        $userPreferences = UserPreference::where('user_id', auth()->id())->first();
+        
+        // Get post type and tone names
+        $postType = PostType::find($userData['post_type_id']);
+        $tone = PostTone::find($userData['tone_id']);
+        
         // Replace placeholders with user data
         $replacements = [
-            '[Industry]' => $userData['industry'] ?? 'Professional',
-            '[Role]' => $userData['role'] ?? 'Professional',
-            '[What is Post About]' => $userData['content'] ?? '',
-            '{topic}' => $userData['content'] ?? '',
+            '{industry}' => $userPreferences->industry->name ?? 'Professional',
+            '{role}' => $userPreferences->role->name ?? 'Professional',
+            '{roles}' => $userPreferences->role->name ?? 'Professional',
+            '{keywords}' => $userData['keywords'] ?? '',
+            '{word_limit}' => $userData['word_limit'] ?? 50,
+            '{raw_content}' => $userData['raw_content'] ?? '',
+            '[Industry]' => $userPreferences->industry->name ?? 'Professional',
+            '[Role]' => $userPreferences->role->name ?? 'Professional',
+            '[What is Post About]' => $userData['raw_content'] ?? '',
             '[Keyword(s)]' => $userData['keywords'] ?? '',
-            '[Word Limit]' => $userData['word_limit'] ?? 100
+            '[Word Limit]' => $userData['word_limit'] ?? 50,
+            '[post_type]' => $postType->name ?? 'LinkedIn Post',
+            '[Tone]' => $tone->name ?? 'Professional'
         ];
 
         foreach ($replacements as $placeholder => $value) {
-            $prompt = str_replace($placeholder, $value, $prompt);
+            // Skip empty placeholders if the value is empty
+            if (empty($value) && strpos($prompt, $placeholder) !== false) {
+                // Remove the placeholder and any surrounding text that might be affected
+                $prompt = preg_replace('/\s*' . preg_quote($placeholder, '/') . '\s*/', '', $prompt);
+            } else {
+                $prompt = str_replace($placeholder, $value, $prompt);
+            }
         }
 
+        // Clean up any double spaces or empty lines
+        $prompt = preg_replace('/\s+/', ' ', $prompt);
         return trim($prompt);
     }
 } 

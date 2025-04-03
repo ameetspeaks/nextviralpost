@@ -20,7 +20,7 @@ class ProfileUpdateRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
             'role_id' => ['required', 'exists:roles,id'],
             'industry_id' => ['required', 'exists:industries,id'],
-            'interest_ids' => ['required', 'array'],
+            'interest_ids' => ['nullable', 'array'],
             'interest_ids.*' => ['exists:interests,id'],
         ];
     }

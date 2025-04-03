@@ -53,10 +53,13 @@ class ProfileController extends BaseController
         // Update password if provided
         if ($request->filled('current_password')) {
             if (!Hash::check($request->current_password, $user->password)) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => ['current_password' => ['The current password is incorrect.']]
-                ], 422);
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['current_password' => ['The current password is incorrect.']]
+                    ], 422);
+                }
+                return back()->withErrors(['current_password' => 'The current password is incorrect.']);
             }
             $user->password = Hash::make($validated['new_password']);
         }
@@ -73,7 +76,18 @@ class ProfileController extends BaseController
         );
 
         // Update interests
-        $user->interests()->sync($validated['interest_ids']);
+        if (isset($validated['interest_ids']) && is_array($validated['interest_ids'])) {
+            $user->interests()->sync($validated['interest_ids']);
+        } else {
+            $user->interests()->detach();
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully'
+            ]);
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
@@ -114,5 +128,21 @@ class ProfileController extends BaseController
         ]);
 
         return back()->with('status', 'password-updated');
+    }
+
+    /**
+     * Display the user's profile.
+     */
+    public function show(Request $request): View
+    {
+        $user = Auth::user();
+        return view('profile.show', [
+            'user' => $user,
+            'roles' => Role::where('is_active', true)->get(),
+            'industries' => Industry::where('is_active', true)->get(),
+            'interests' => Interest::where('is_active', true)->get(),
+            'userPreferences' => $user->preference,
+            'userInterests' => $user->interests->pluck('id')->toArray()
+        ]);
     }
 } 

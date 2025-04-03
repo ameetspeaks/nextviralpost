@@ -42,7 +42,7 @@ class OnboardingController extends BaseController
         $validated = $request->validate([
             'role_id' => 'required|exists:roles,id',
             'industry_id' => 'required|exists:industries,id',
-            'interest_ids' => 'required|array',
+            'interest_ids' => 'nullable|array',
             'interest_ids.*' => 'exists:interests,id',
         ]);
 
@@ -57,8 +57,10 @@ class OnboardingController extends BaseController
                 ]
             );
 
-            // Sync user interests
-            $user->interests()->sync($validated['interest_ids']);
+            // Sync user interests if provided
+            if (!empty($validated['interest_ids'])) {
+                $user->interests()->sync($validated['interest_ids']);
+            }
 
             return response()->json([
                 'success' => true,

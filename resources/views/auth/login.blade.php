@@ -142,33 +142,25 @@
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify(Object.fromEntries(formData))
+                body: formData
             })
-            .then(response => {
-                if (!response.ok) {
-                    if (response.status === 419) {
-                        throw new Error('CSRF token mismatch. Please refresh the page and try again.');
-                    }
-                    return response.json().then(data => {
-                        throw new Error(data.message || 'An error occurred');
-                    });
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.errors) {
                     errorMessage.textContent = Object.values(data.errors).flat().join(', ');
                     errorMessage.classList.remove('hidden');
                 } else if (data.redirect) {
                     window.location.href = data.redirect;
+                } else if (data.message) {
+                    errorMessage.textContent = data.message;
+                    errorMessage.classList.remove('hidden');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                errorMessage.textContent = error.message || 'An error occurred. Please try again.';
+                errorMessage.textContent = 'An error occurred. Please try again.';
                 errorMessage.classList.remove('hidden');
             })
             .finally(() => {
