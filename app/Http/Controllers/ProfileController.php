@@ -125,7 +125,9 @@ class ProfileController extends BaseController
         $user = Auth::user();
         return view('profile.show', [
             'user' => $user,
-            'roles' => Role::where('is_active', true)->get(),
+            'roles' => Role::where('is_active', true)
+                          ->where('name', '!=', 'Super Admin')
+                          ->get(),
             'industries' => Industry::where('is_active', true)->get(),
             'interests' => Interest::where('is_active', true)->get(),
             'userPreferences' => $user->preference,

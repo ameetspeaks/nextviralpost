@@ -102,7 +102,7 @@
                         <div class="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
                             <div class="px-6 py-5 border-b border-gray-100">
                                 <div class="flex items-center justify-between">
-                                    <div>
+                                <div>
                                         <h2 class="text-xl font-semibold text-gray-900">Generate Post</h2>
                                         <p class="mt-1 text-sm text-gray-500">Fill in the details to generate your content</p>
                                     </div>
@@ -124,35 +124,35 @@
                                         <div class="relative">
                                             <select id="post_type_id" name="post_type_id" class="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg transition duration-150 ease-in-out">
                                                 <option value="">Select a content type</option>
-                                                @foreach($postTypes as $type)
-                                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
-                                                @endforeach
-                                            </select>
+                                        @foreach($postTypes as $type)
+                                            <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                        @endforeach
+                                    </select>
                                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                                 </svg>
                                             </div>
                                         </div>
-                                    </div>
+                                </div>
 
                                     <!-- Tone Selection -->
                                     <div class="form-group">
                                         <label for="tone_id" class="block text-sm font-medium text-gray-700 mb-1">Tone</label>
                                         <div class="relative">
                                             <select id="tone_id" name="tone_id" class="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg transition duration-150 ease-in-out">
-                                                <option value="">Select a tone</option>
-                                                @foreach($tones as $tone)
-                                                    <option value="{{ $tone->id }}">{{ $tone->name }}</option>
-                                                @endforeach
-                                            </select>
+                                        <option value="">Select a tone</option>
+                                        @foreach($tones as $tone)
+                                            <option value="{{ $tone->id }}">{{ $tone->name }}</option>
+                                        @endforeach
+                                    </select>
                                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                                 </svg>
                                             </div>
                                         </div>
-                                    </div>
+                                </div>
 
                                     <!-- Keywords Input -->
                                     <div class="form-group">
@@ -165,7 +165,7 @@
                                                 </svg>
                                             </div>
                                         </div>
-                                    </div>
+                                </div>
 
                                     <!-- Raw Content Input -->
                                     <div class="form-group">
@@ -173,7 +173,7 @@
                                         <div class="mt-1">
                                             <textarea id="raw_content" name="raw_content" rows="4" class="block w-full sm:text-sm border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out resize-none" placeholder="Enter your raw content here..."></textarea>
                                         </div>
-                                    </div>
+                                </div>
 
                                     <!-- Word Limit Slider -->
                                     <div class="form-group">
@@ -186,7 +186,7 @@
                                                 <span class="text-xs font-medium text-gray-500">300 words</span>
                                             </div>
                                         </div>
-                                    </div>
+                                </div>
 
                                     <!-- Generate Button -->
                                     <div class="pt-4">
@@ -194,11 +194,10 @@
                                             <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                             </svg>
-                                            Generate Post
-                                        </button>
-                                    </div>
+                                        Generate Post
+                                    </button>
                                 </form>
-                            </div>
+                                </div>
                         </div>
 
                         <!-- Generated Post Column -->
@@ -208,9 +207,9 @@
                                     <div>
                                         <h2 class="text-xl font-semibold text-gray-900">Generated Post</h2>
                                         <p class="mt-1 text-sm text-gray-500">Preview your generated content</p>
-                                    </div>
-                                </div>
-                            </div>
+                                                </div>
+                                            </div>
+                                            </div>
 
                             <div class="px-6 py-6">
                                 <!-- Empty State -->
@@ -230,13 +229,13 @@
                                     <div class="border rounded-xl bg-white shadow-sm">
                                         <!-- Header with User Info and Bookmark -->
                                         <div class="p-4 border-b">
-                                            <div class="flex items-center justify-between">
+                                        <div class="flex items-center justify-between">
                                                 <div class="flex items-center">
                                                     <!-- Website Icon instead of profile photo -->
                                                     <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
                                                         <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                        </svg>
+                                                    </svg>
                                                     </div>
                                                     <div class="ml-3">
                                                         <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
@@ -259,17 +258,21 @@
 
                                         <!-- Action Buttons -->
                                         <div class="px-6 py-4 bg-gray-50 border-t">
-                                            <div class="flex items-center justify-between">
-                                                <div class="flex space-x-3">
-                                                    <button id="copyButton" type="button" class="inline-flex items-center px-4 py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                                                        <svg class="mr-2 h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                            <div class="mt-4 flex items-center justify-between border-t pt-4">
+                                                <div class="flex items-center space-x-2">
+                                                    <button type="button" 
+                                                            onclick="copyPost()"
+                                                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
                                                         </svg>
                                                         Copy
                                                     </button>
-                                                    <button id="shareButton" type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-[#0A66C2] hover:bg-[#004182] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0A66C2] transition duration-150 ease-in-out">
-                                                        <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                                                            <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+                                                    <button type="button" 
+                                                            onclick="shareOnLinkedIn()"
+                                                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                                        <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                                                         </svg>
                                                         Share on LinkedIn
                                                     </button>
@@ -340,8 +343,8 @@
     const copyButton = document.getElementById('copyButton');
     const shareButton = document.getElementById('shareButton');
         const bookmarkButton = document.getElementById('bookmarkButton');
-    const positiveFeedback = document.getElementById('positiveFeedback');
-    const negativeFeedback = document.getElementById('negativeFeedback');
+        const positiveFeedback = document.getElementById('positiveFeedback');
+        const negativeFeedback = document.getElementById('negativeFeedback');
     const regenerateButton = document.getElementById('regenerateButton');
     const feedbackButtons = document.getElementById('feedbackButtons');
     let currentTemplate = null;
@@ -407,18 +410,18 @@
 
     // Initial template check
     checkTemplateAvailability();
-
-    // Handle form submission
+        
+        // Handle form submission
     form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-
+            e.preventDefault();
+            
         if (!currentTemplate) {
             alert('Please select a valid content type and tone combination.');
             return;
         }
             
             // Disable generate button
-        generateButton.disabled = true;
+            generateButton.disabled = true;
         generateButton.classList.add('opacity-50', 'cursor-not-allowed');
             
         try {
@@ -431,7 +434,7 @@
                 word_limit: wordLimitInput.value,
                 prompt: currentTemplate.content
             };
-
+            
             // Send request to generate post
             const response = await fetch('/post-generator/generate', {
                 method: 'POST',
@@ -468,12 +471,12 @@
                     .then(() => {
                         const originalText = copyButton.textContent;
                         copyButton.textContent = 'Copied!';
-                        setTimeout(() => {
+                setTimeout(() => {
                             copyButton.textContent = originalText;
-                        }, 2000);
-                    });
+                }, 2000);
             });
-
+        });
+        
             // Setup share button
             shareButton.addEventListener('click', () => {
                 const text = encodeURIComponent(result.generated_content);
@@ -603,6 +606,38 @@
             alert('Error regenerating post. Please try again.');
         }
     });
+
+    function toggleBookmark() {
+        const postId = document.querySelector('.bookmark-btn').dataset.postId;
+        if (!postId) return;
+
+        fetch(`/bookmarks/${postId}/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const svg = document.querySelector('.bookmark-btn svg');
+                if (data.is_bookmarked) {
+                    svg.classList.remove('text-gray-400');
+                    svg.classList.add('text-indigo-600');
+                    svg.setAttribute('fill', 'currentColor');
+                } else {
+                    svg.classList.remove('text-indigo-600');
+                    svg.classList.add('text-gray-400');
+                    svg.setAttribute('fill', 'none');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the bookmark');
+        });
+    }
     });
     </script>
     @endpush

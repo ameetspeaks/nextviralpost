@@ -66,7 +66,11 @@ class UserController extends Controller
     public function show(User $user)
     {
         $industries = Industry::where('is_active', true)->get();
-        $roles = Role::where('is_active', true)->get();
+        $roles = Role::where('is_active', true)
+                    ->when(!auth()->user()->is_superadmin, function($query) {
+                        return $query->where('name', '!=', 'Super Admin');
+                    })
+                    ->get();
         return view('admin.users.show', compact('user', 'industries', 'roles'));
     }
 

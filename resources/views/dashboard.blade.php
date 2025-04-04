@@ -39,6 +39,23 @@ use Illuminate\Support\Facades\Auth;
             <main class="px-4 sm:px-6 lg:px-8 py-6">
                 <!-- Stats Overview -->
                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                    <!-- Total Posts -->
+                    <div class="bg-white overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 p-3 rounded-lg bg-indigo-50">
+                                    <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-5">
+                                    <p class="text-sm font-medium text-gray-500">Total Posts</p>
+                                    <p class="text-2xl font-semibold text-gray-900">{{ $totalPosts }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Posts Today -->
                     <div class="bg-white overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
                         <div class="p-5">
@@ -57,34 +74,6 @@ use Illuminate\Support\Facades\Auth;
                                                 <svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                     </svg>
-                                                <span class="sr-only">Increased by</span>
-                                                0%
-                                            </div>
-                                        </dd>
-                                    </dl>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Total Posts -->
-                    <div class="bg-white overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
-                        <div class="p-5">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 p-3 rounded-lg bg-indigo-50">
-                                    <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                                    </svg>
-                                </div>
-                                <div class="ml-5 w-0 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">Total Posts</dt>
-                                        <dd class="flex items-baseline">
-                                            <div class="text-2xl font-semibold text-gray-900">0</div>
-                                            <div class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
-                                                <svg class="self-center flex-shrink-0 h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                                                </svg>
                                                 <span class="sr-only">Increased by</span>
                                                 0%
                                             </div>

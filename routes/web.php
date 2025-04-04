@@ -10,6 +10,7 @@ use App\Http\Controllers\PostGeneratorController;
 use App\Http\Controllers\ViralTemplateController;
 use App\Http\Controllers\ViralContentController;
 use App\Http\Controllers\MyPostsController;
+use App\Http\Controllers\BookmarkController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,8 +80,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/viral-content/{id}/bookmark', [ViralContentController::class, 'bookmark'])->name('viral-content.bookmark');
     Route::post('/viral-content/{id}/inspire', [ViralContentController::class, 'inspire'])->name('viral-content.inspire');
     
-    // Bookmarks Routes
-    Route::get('/bookmarks', [ViralContentController::class, 'bookmarks'])->name('bookmarks.index');
+    // Bookmark routes
+    Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
+    Route::post('/bookmarks/{post}/toggle', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
     
     // My Posts Routes
     Route::get('/my-posts', [MyPostsController::class, 'index'])->name('my-posts.index');

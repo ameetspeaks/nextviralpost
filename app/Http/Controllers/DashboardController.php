@@ -23,7 +23,7 @@ class DashboardController extends BaseController
         $user = Auth::user();
         
         // Get total posts from posts table based on max ID that is not null
-        $totalPosts = Post::whereNotNull('id')->max('id') ?? 0;
+        $totalPosts = Post::whereNotNull('id')->count();
         
         // Calculate engagement rate based on viral templates
         $viralTemplates = ViralTemplate::whereHas('interactions', function($query) use ($user) {
