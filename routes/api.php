@@ -16,4 +16,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+// Firebase Authentication Routes
+Route::prefix('auth/firebase')->group(function () {
+    Route::post('login', [App\Http\Controllers\Auth\FirebaseAuthController::class, 'login']);
+    Route::post('register', [App\Http\Controllers\Auth\FirebaseAuthController::class, 'register']);
+    Route::post('logout', [App\Http\Controllers\Auth\FirebaseAuthController::class, 'logout'])->middleware('auth');
 }); 

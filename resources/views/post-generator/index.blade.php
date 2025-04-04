@@ -1,527 +1,608 @@
-<x-app-layout>
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <h1 class="text-2xl font-bold mb-6 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+@extends('layouts.app')
+
+@php
+    use Illuminate\Support\Facades\Auth;
+@endphp
+
+@section('content')
+<div class="flex">
+    <!-- Left Sidebar -->
+    <aside class="fixed inset-y-0 left-0 w-64 bg-white shadow-sm overflow-y-auto">
+        <!-- Logo Section -->
+        <div class="px-6 py-5 border-b">
+            <div class="flex items-center">
+                <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span class="ml-3 text-xl font-semibold text-gray-900">NextViralPost</span>
+            </div>
+            <p class="mt-1 text-sm text-gray-500">AI Post Generator</p>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="px-4 py-6">
+            <div class="space-y-1">
+                <a href="{{ route('dashboard') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
+                    <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    Dashboard
+                </a>
+
+                <a href="{{ route('post-generator.index') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg bg-indigo-50 text-indigo-600">
+                    <svg class="mr-3 h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Generate Post
+                </a>
+
+                <a href="{{ route('viral-content.index') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
+                    <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                    Viral Recipe
+                </a>
+
+                <a href="{{ route('bookmarks.index') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
+                    <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                    </svg>
+                    Bookmarks
+                </a>
+
+                <a href="{{ route('my-posts.index') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
+                    <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15"></path>
+                    </svg>
+                    My Posts
+                </a>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="mt-6 pt-6 border-t">
+                <div class="px-3">
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Settings</h3>
+                </div>
+                <div class="mt-3 space-y-1">
+                    <a href="{{ route('profile.show') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
+                        <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
-                        Post Generator
-                    </h1>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Left Column: Post Generation Form -->
-                        <div class="bg-gradient-to-br from-white to-indigo-50 p-6 rounded-lg shadow-md border border-indigo-100">
-                            <h2 class="text-xl font-semibold mb-4 flex items-center text-indigo-800">
-                                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                                Generate Your Post
-                            </h2>
-                            <form id="postGeneratorForm" class="space-y-4">
-                                @csrf
-                                <div>
-                                    <label for="post_type_id" class="block text-sm font-medium text-gray-700 flex items-center">
-                                        <svg class="w-4 h-4 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                        </svg>
-                                        Post Type
-                                    </label>
-                                    <select id="post_type_id" name="post_type_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                                        <option value="">Select a post type</option>
-                                        @foreach($postTypes as $type)
-                                            <option value="{{ $type->id }}">{{ $type->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                        Profile Settings
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </aside>
 
-                                <div>
-                                    <label for="tone_id" class="block text-sm font-medium text-gray-700 flex items-center">
-                                        <svg class="w-4 h-4 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        Tone
-                                    </label>
-                                    <select id="tone_id" name="tone_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                                        <option value="">Select a tone</option>
-                                        @foreach($tones as $tone)
-                                            <option value="{{ $tone->id }}">{{ $tone->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+    <!-- Main Content Area -->
+    <main class="flex-1 ml-64">
+        <div class="py-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Header Section -->
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-semibold text-gray-900">Generate Post</h1>
+                        <p class="mt-1 text-sm text-gray-500">Create engaging content using AI</p>
+                    </div>
+                    <div>
+                        <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Create New Post
+                        </button>
+                    </div>
+                </div>
 
-                                <div>
-                                    <label for="keywords" class="block text-sm font-medium text-gray-700 flex items-center">
-                                        <svg class="w-4 h-4 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                <!-- Main Content -->
+                <div class="mt-8">
+                    <div class="grid grid-cols-2 gap-8">
+                        <!-- Generate Post Column -->
+                        <div class="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
+                            <div class="px-6 py-5 border-b border-gray-100">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h2 class="text-xl font-semibold text-gray-900">Generate Post</h2>
+                                        <p class="mt-1 text-sm text-gray-500">Fill in the details to generate your content</p>
+                                    </div>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-50 text-indigo-700">
+                                        <svg class="mr-1.5 h-3 w-3 text-indigo-500" fill="currentColor" viewBox="0 0 8 8">
+                                            <circle cx="4" cy="4" r="3" />
                                         </svg>
-                                        Keywords
-                                    </label>
-                                    <input type="text" id="keywords" name="keywords" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Enter keywords (comma separated)" required>
+                                        AI Powered
+                                    </span>
                                 </div>
+                            </div>
 
-                                <div>
-                                    <label for="word_limit" class="block text-sm font-medium text-gray-700 flex items-center">
-                                        <svg class="w-4 h-4 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        Word Limit
-                                    </label>
-                                    <input type="number" id="word_limit" name="word_limit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value="50" min="50" max="300" required>
-                                    <p class="mt-1 text-sm text-gray-500 flex items-center">
-                                        <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        Minimum: 50 words, Maximum: 300 words
-                                    </p>
-                                </div>
+                            <div class="px-6 py-6">
+                                <!-- Form Section -->
+                                <form id="postGeneratorForm" class="space-y-6">
+                                    <!-- Content Type Selection -->
+                                    <div class="form-group">
+                                        <label for="post_type_id" class="block text-sm font-medium text-gray-700 mb-1">Content Type</label>
+                                        <div class="relative">
+                                            <select id="post_type_id" name="post_type_id" class="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg transition duration-150 ease-in-out">
+                                                <option value="">Select a content type</option>
+                                                @foreach($postTypes as $type)
+                                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                <div>
-                                    <label for="raw_content" class="block text-sm font-medium text-gray-700 flex items-center">
-                                        <svg class="w-4 h-4 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                        Post Content
-                                    </label>
-                                    <textarea id="raw_content" name="raw_content" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Enter your post content or key points to include" required></textarea>
-                                </div>
+                                    <!-- Tone Selection -->
+                                    <div class="form-group">
+                                        <label for="tone_id" class="block text-sm font-medium text-gray-700 mb-1">Tone</label>
+                                        <div class="relative">
+                                            <select id="tone_id" name="tone_id" class="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg transition duration-150 ease-in-out">
+                                                <option value="">Select a tone</option>
+                                                @foreach($tones as $tone)
+                                                    <option value="{{ $tone->id }}">{{ $tone->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                <div>
-                                    <button type="submit" id="generateButton" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                        </svg>
-                                        Generate Post
-                                    </button>
-                                </div>
-                                
-                                <!-- New Post Button (Hidden by default) -->
-                                <div id="newPostButtonContainer" class="hidden">
-                                    <button type="button" id="newPostButton" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 transform hover:scale-105">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                        </svg>
-                                        Create New Post
-                                    </button>
-                                </div>
-                            </form>
+                                    <!-- Keywords Input -->
+                                    <div class="form-group">
+                                        <label for="keywords" class="block text-sm font-medium text-gray-700 mb-1">Keywords</label>
+                                        <div class="mt-1 relative rounded-lg shadow-sm">
+                                            <input type="text" name="keywords" id="keywords" class="block w-full pl-3 pr-10 py-2.5 sm:text-sm border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" placeholder="Enter keywords separated by commas">
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Raw Content Input -->
+                                    <div class="form-group">
+                                        <label for="raw_content" class="block text-sm font-medium text-gray-700 mb-1">Raw Content</label>
+                                        <div class="mt-1">
+                                            <textarea id="raw_content" name="raw_content" rows="4" class="block w-full sm:text-sm border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out resize-none" placeholder="Enter your raw content here..."></textarea>
+                                        </div>
+                                    </div>
+
+                                    <!-- Word Limit Slider -->
+                                    <div class="form-group">
+                                        <label for="word_limit" class="block text-sm font-medium text-gray-700 mb-3">Word Limit</label>
+                                        <div class="mt-1">
+                                            <input type="range" name="word_limit" id="word_limit" min="50" max="300" step="50" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                                            <div class="flex justify-between mt-2">
+                                                <span class="text-xs font-medium text-gray-500">50 words</span>
+                                                <span id="word_limit_value" class="text-xs font-medium text-indigo-600">50 words</span>
+                                                <span class="text-xs font-medium text-gray-500">300 words</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Generate Button -->
+                                    <div class="pt-4">
+                                        <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                            <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                            </svg>
+                                            Generate Post
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
-                        <!-- Right Column: Generated Post Display -->
-                        <div class="bg-gradient-to-br from-white to-indigo-50 p-6 rounded-lg shadow-md border border-indigo-100">
-                            <h2 class="text-xl font-semibold mb-4 flex items-center text-indigo-800">
-                                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                Generated Post
-                            </h2>
-                            <div id="generatedPostContainer" class="hidden">
-                                <!-- LinkedIn-style Post Card -->
-                                <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4">
-                                    <!-- Post Header -->
-                                    <div class="p-4 flex items-start justify-between border-b border-gray-100">
-                                        <div class="flex items-start space-x-3">
-                                            <!-- Avatar -->
-                                            <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                                                <svg class="h-6 w-6 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-                                                </svg>
-                                            </div>
-                                            <!-- User Info -->
-                                            <div class="flex flex-col">
-                                                <h3 class="font-semibold text-[15px] text-gray-900 leading-tight">{{ auth()->user()->name }}</h3>
-                                                <div class="flex items-center text-xs text-gray-500 mt-0.5">
-                                                    <span>{{ auth()->user()->role->name ?? 'Professional' }} • {{ auth()->user()->industry->name ?? 'Technology' }}</span>
+                        <!-- Generated Post Column -->
+                        <div class="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100">
+                            <div class="px-6 py-5 border-b border-gray-100">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h2 class="text-xl font-semibold text-gray-900">Generated Post</h2>
+                                        <p class="mt-1 text-sm text-gray-500">Preview your generated content</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="px-6 py-6">
+                                <!-- Empty State -->
+                                <div id="emptyState" class="text-center py-12">
+                                    <div class="mx-auto w-24 h-24 rounded-full bg-indigo-50 flex items-center justify-center">
+                                        <svg class="h-12 w-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="mt-4 text-lg font-medium text-gray-900">No post generated yet</h3>
+                                    <p class="mt-2 text-sm text-gray-500">Fill out the form and click Generate Post to create content.</p>
+                                </div>
+
+                                <!-- Generated Content -->
+                                <div id="generatedContent" class="hidden">
+                                    <!-- LinkedIn-style Card -->
+                                    <div class="border rounded-xl bg-white shadow-sm">
+                                        <!-- Header with User Info and Bookmark -->
+                                        <div class="p-4 border-b">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center">
+                                                    <!-- Website Icon instead of profile photo -->
+                                                    <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                                                        <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div class="ml-3">
+                                                        <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
+                                                        <p class="text-xs text-gray-500">NextViralPost</p>
+                                                    </div>
                                                 </div>
-                                                <div class="flex items-center text-xs text-gray-500 mt-0.5">
-                                                    <span>Just now</span>
-                                                    <span class="mx-1">•</span>
-                                                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 16 16">
-                                                        <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM3.5 8a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 0-1H4a.5.5 0 0 0-.5.5Zm6.5.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/>
+                                                <!-- Bookmark Button -->
+                                                <button id="bookmarkButton" type="button" class="inline-flex items-center px-3 py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                                                     </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Content -->
+                                        <div class="p-6">
+                                            <div id="contentPreview" class="prose max-w-none text-gray-900 text-sm leading-relaxed"></div>
+                                        </div>
+
+                                        <!-- Action Buttons -->
+                                        <div class="px-6 py-4 bg-gray-50 border-t">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex space-x-3">
+                                                    <button id="copyButton" type="button" class="inline-flex items-center px-4 py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                                        <svg class="mr-2 h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                                        </svg>
+                                                        Copy
+                                                    </button>
+                                                    <button id="shareButton" type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-[#0A66C2] hover:bg-[#004182] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0A66C2] transition duration-150 ease-in-out">
+                                                        <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                                            <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+                                                        </svg>
+                                                        Share on LinkedIn
+                                                    </button>
+                                                </div>
+                                                <!-- Regenerate Button -->
+                                                <button id="regenerateButton" type="button" class="hidden inline-flex items-center px-3 py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                                    <svg class="h-5 w-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Feedback Section -->
+                                        <div class="px-6 py-4 bg-gray-50 border-t">
+                                            <div class="flex items-center justify-between">
+                                                <p class="text-sm text-gray-500">How was this generation?</p>
+                                                <div id="feedbackButtons" class="flex items-center space-x-4">
+                                                    <button id="positiveFeedback" type="button" class="inline-flex items-center px-4 py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                                                        <svg class="mr-2 h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                                                        </svg>
+                                                        Helpful
+                                                    </button>
+                                                    <button id="negativeFeedback" type="button" class="inline-flex items-center px-4 py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out">
+                                                        <svg class="mr-2 h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"></path>
+                                                        </svg>
+                                                        Not Helpful
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-- Bookmark Button in Header -->
-                                        <button id="bookmarkButton" class="p-1 hover:bg-gray-100 rounded-full">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    
-                                    <!-- Post Content -->
-                                    <div class="p-4">
-                                        <div id="generatedContent" class="prose max-w-none text-gray-800 whitespace-pre-line"></div>
-                                    </div>
-                                    
-                                    <!-- Post Actions -->
-                                    <div class="p-4 border-t border-gray-100 flex items-center justify-between">
-                                        <div class="flex space-x-4">
-                                            <button id="copyButton" class="flex items-center text-gray-500 hover:text-indigo-600 transition-colors">
-                                                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
-                                                </svg>
-                                                <span class="text-sm">Copy</span>
-                                            </button>
-                                            <button id="postToLinkedIn" class="flex items-center text-gray-500 hover:text-indigo-600 transition-colors">
-                                                <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path>
-                                                </svg>
-                                                <span class="text-sm">Share on LinkedIn</span>
-                                            </button>
-                                        </div>
-                                        <button id="regenerateButton" class="flex items-center text-indigo-600 hover:text-indigo-800 transition-colors">
-                                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                            </svg>
-                                            <span class="text-sm font-medium">Regenerate</span>
-                                        </button>
                                     </div>
                                 </div>
-                                
-                                <!-- Feedback Section -->
-                                <div class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                    <h3 class="text-sm font-medium text-gray-700 mb-2">Was this post helpful?</h3>
-                                    <div class="flex space-x-4">
-                                        <button id="positiveFeedback" class="flex items-center px-3 py-1.5 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors">
-                                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
-                                            </svg>
-                                            <span>Yes</span>
-                                        </button>
-                                        <button id="negativeFeedback" class="flex items-center px-3 py-1.5 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors">
-                                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v5a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2.5"></path>
-                                            </svg>
-                                            <span>No</span>
-                                        </button>
+
+                                <!-- Loading State -->
+                                <div id="loadingState" class="hidden">
+                                    <div class="flex flex-col items-center justify-center py-12">
+                                        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-600"></div>
+                                        <p class="mt-4 text-sm font-medium text-gray-900">Generating your post...</p>
+                                        <p class="mt-2 text-xs text-gray-500">This may take a few seconds</p>
                                     </div>
                                 </div>
-                                
-                                <!-- Regeneration Limit Message -->
-                                <div id="maxRegenerationsMessage" class="hidden mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200 text-yellow-800">
-                                    <p class="text-sm">Maximum regeneration attempts reached. Please try again later.</p>
-                                </div>
-                                
-                                <!-- Regeneration Tip -->
-                                <div id="regenerationTip" class="hidden mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200 text-indigo-800">
-                                    <p class="text-sm">Not happy with the result? Give negative feedback to regenerate.</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Empty State with Animation -->
-                            <div id="emptyState" class="flex flex-col items-center justify-center py-12 text-center">
-                                <div class="animate-pulse mb-4">
-                                    <svg class="w-16 h-16 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
-                                </div>
-                                <h3 class="text-lg font-medium text-gray-700 mb-2">No Post Generated Yet</h3>
-                                <p class="text-gray-500 max-w-md">Fill out the form on the left and click "Generate Post" to create your content.</p>
-                            </div>
-                            
-                            <!-- Loading State -->
-                            <div id="loadingState" class="hidden flex flex-col items-center justify-center py-12 text-center">
-                                <div class="animate-spin mb-4">
-                                    <svg class="w-12 h-12 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                </div>
-                                <h3 class="text-lg font-medium text-gray-700 mb-2">Generating Your Post</h3>
-                                <p class="text-gray-500 max-w-md">Please wait while we create the perfect content for you...</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </main>
     </div>
+@endsection
 
     @push('scripts')
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const postGeneratorForm = document.getElementById('postGeneratorForm');
-        const generatedPostContainer = document.getElementById('generatedPostContainer');
+    const form = document.getElementById('postGeneratorForm');
+    const postTypeSelect = document.getElementById('post_type_id');
+    const toneSelect = document.getElementById('tone_id');
+    const generateButton = form.querySelector('button[type="submit"]');
         const emptyState = document.getElementById('emptyState');
         const loadingState = document.getElementById('loadingState');
         const generatedContent = document.getElementById('generatedContent');
-        const generateButton = document.getElementById('generateButton');
-        const newPostButtonContainer = document.getElementById('newPostButtonContainer');
-        const newPostButton = document.getElementById('newPostButton');
-        const regenerateButton = document.getElementById('regenerateButton');
+    const contentPreview = document.getElementById('contentPreview');
+    const wordLimitInput = document.getElementById('word_limit');
+    const wordLimitValue = document.getElementById('word_limit_value');
+    const copyButton = document.getElementById('copyButton');
+    const shareButton = document.getElementById('shareButton');
         const bookmarkButton = document.getElementById('bookmarkButton');
-        const positiveFeedback = document.getElementById('positiveFeedback');
-        const negativeFeedback = document.getElementById('negativeFeedback');
-        const copyButton = document.getElementById('copyButton');
-        const postToLinkedIn = document.getElementById('postToLinkedIn');
-        const maxRegenerationsMessage = document.getElementById('maxRegenerationsMessage');
-        const regenerationTip = document.getElementById('regenerationTip');
-        
-        let currentPostId = null;
-        let regenerationCount = 0;
-        let canRegenerate = false; // Start with regenerate disabled
-        
-        // Handle new post button click
-        newPostButton.addEventListener('click', function() {
-            // Simply reload the page
-            window.location.reload();
-        });
-        
-        // Handle form submission
-        postGeneratorForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+    const positiveFeedback = document.getElementById('positiveFeedback');
+    const negativeFeedback = document.getElementById('negativeFeedback');
+    const regenerateButton = document.getElementById('regenerateButton');
+    const feedbackButtons = document.getElementById('feedbackButtons');
+    let currentTemplate = null;
+    let currentPostId = null;
+    let regenerationAttempts = 0;
+
+    // Update word limit value display
+    wordLimitInput.addEventListener('input', function() {
+        wordLimitValue.textContent = `${this.value} words`;
+    });
+
+    // Initialize word limit display
+    wordLimitValue.textContent = `${wordLimitInput.value} words`;
+
+    // Function to replace placeholders in template
+    function replacePlaceholders(template, data) {
+        return template.replace(/\{(\w+)\}/g, (match, key) => data[key] || match);
+    }
+
+    // Check template availability when content type or tone changes
+    async function checkTemplateAvailability() {
+        const postTypeId = postTypeSelect.value;
+        const toneId = toneSelect.value;
+
+        if (!postTypeId || !toneId) {
+            generateButton.disabled = true;
+            return;
+        }
+
+        try {
+            const response = await fetch('/post-generator/check-template', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    post_type_id: postTypeId,
+                    tone_id: toneId
+                })
+            });
+
+            const data = await response.json();
             
-            // Show loading state
-            emptyState.classList.add('hidden');
-            generatedPostContainer.classList.add('hidden');
-            loadingState.classList.remove('hidden');
-            maxRegenerationsMessage.classList.add('hidden');
-            regenerationTip.classList.add('hidden');
+            if (data.success) {
+                currentTemplate = data.template;
+                generateButton.disabled = false;
+            } else {
+                currentTemplate = null;
+                generateButton.disabled = true;
+                alert(data.message || 'No template found for this combination. Please try a different content type or tone.');
+            }
+        } catch (error) {
+            console.error('Error checking template:', error);
+            generateButton.disabled = true;
+            alert('Error checking template availability. Please try again.');
+        }
+    }
+
+    // Add event listeners for template checking
+    postTypeSelect.addEventListener('change', checkTemplateAvailability);
+    toneSelect.addEventListener('change', checkTemplateAvailability);
+
+    // Initial template check
+    checkTemplateAvailability();
+
+    // Handle form submission
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        if (!currentTemplate) {
+            alert('Please select a valid content type and tone combination.');
+            return;
+        }
             
             // Disable generate button
-            generateButton.disabled = true;
-            generateButton.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Generating...
-            `;
+        generateButton.disabled = true;
+        generateButton.classList.add('opacity-50', 'cursor-not-allowed');
             
+        try {
             // Get form data
-            const formData = new FormData(postGeneratorForm);
-            
+            const formData = {
+                post_type_id: postTypeSelect.value,
+                tone_id: toneSelect.value,
+                keywords: document.getElementById('keywords').value,
+                raw_content: document.getElementById('raw_content').value,
+                word_limit: wordLimitInput.value,
+                prompt: currentTemplate.content
+            };
+
             // Send request to generate post
-            fetch('/post-generator/generate', {
+            const response = await fetch('/post-generator/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
-                body: JSON.stringify(Object.fromEntries(formData))
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Hide loading state
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to generate post');
+            }
+
+            // Store current post ID
+            currentPostId = result.id;
+            regenerationAttempts = result.regeneration_attempts || 0;
+
+            // Show generated content
+            contentPreview.textContent = result.generated_content;
                 loadingState.classList.add('hidden');
-                
-                if (data.error) {
-                    // Show error message
-                    alert(data.error);
+            emptyState.classList.add('hidden');
+            generatedContent.classList.remove('hidden');
+
+            // Show feedback buttons
+            feedbackButtons.classList.remove('hidden');
+            regenerateButton.classList.add('hidden');
+
+            // Setup copy button
+            copyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(result.generated_content)
+                    .then(() => {
+                        const originalText = copyButton.textContent;
+                        copyButton.textContent = 'Copied!';
+                        setTimeout(() => {
+                            copyButton.textContent = originalText;
+                        }, 2000);
+                    });
+            });
+
+            // Setup share button
+            shareButton.addEventListener('click', () => {
+                const text = encodeURIComponent(result.generated_content);
+                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${text}`, '_blank');
+            });
+
+            // Setup bookmark button
+            bookmarkButton.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/post-generator/bookmark/' + result.id, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
                     
-                    // Reset generate button
-                    generateButton.disabled = false;
-                    generateButton.innerHTML = `
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                        Generate Post
-                    `;
-                    return;
-                }
-                
-                // Store post ID
-                currentPostId = data.post_id;
-                
-                // Update generated content
-                generatedContent.textContent = data.generated_content;
-                
-                // Show generated post
-                generatedPostContainer.classList.remove('hidden');
-                
-                // Hide generate button and show new post button
-                generateButton.classList.add('hidden');
-                newPostButtonContainer.classList.remove('hidden');
-                
-                // Reset regeneration count
-                regenerationCount = 0;
-                canRegenerate = false; // Regenerate is disabled until negative feedback
-                regenerateButton.disabled = true;
-                regenerateButton.classList.add('opacity-50', 'cursor-not-allowed');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                
-                // Hide loading state
-                loadingState.classList.add('hidden');
-                
-                // Show error message
-                alert('An error occurred while generating the post. Please try again.');
-                
-                // Reset generate button
-                generateButton.disabled = false;
-                generateButton.innerHTML = `
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                    Generate Post
-                `;
-            });
-        });
-        
-        // Handle copy button click
-        copyButton.addEventListener('click', function() {
-            const text = generatedContent.innerText + "\n\n🔗 Post generated by NextPostAI - https://nextpostai.pandeyamit.com";
-            navigator.clipboard.writeText(text).then(() => {
-                const originalHTML = copyButton.innerHTML;
-                copyButton.innerHTML = `
-                    <svg class="w-5 h-5 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <span class="text-green-600">Copied!</span>
-                `;
-                setTimeout(() => {
-                    copyButton.innerHTML = originalHTML;
-                }, 2000);
-            });
-        });
-        
-        // Handle LinkedIn share button click
-        postToLinkedIn.addEventListener('click', function() {
-            const text = generatedContent.innerText;
-            const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=https://nextpostai.pandeyamit.com&summary=${encodeURIComponent(text)}`;
-            window.open(linkedInUrl, '_blank', 'width=600,height=600');
-        });
-        
-        // Handle regenerate button click
-        regenerateButton.addEventListener('click', function() {
-            if (!currentPostId || !canRegenerate) return;
-            
-            // Show loading state
-            generatedPostContainer.classList.add('hidden');
-            loadingState.classList.remove('hidden');
-            
-            // Send request to regenerate post
-            fetch(`/post-generator/regenerate/${currentPostId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Hide loading state
-                loadingState.classList.add('hidden');
-                
-                if (data.error) {
-                    // Show error message
-                    alert(data.error);
-                    return;
-                }
-                
-                // Update generated content
-                generatedContent.textContent = data.generated_content;
-                
-                // Show generated post
-                generatedPostContainer.classList.remove('hidden');
-                
-                // Increment regeneration count
-                regenerationCount++;
-                
-                // Check if max regenerations reached
-                if (regenerationCount >= 2) {
-                    canRegenerate = false;
-                    regenerateButton.disabled = true;
-                    regenerateButton.classList.add('opacity-50', 'cursor-not-allowed');
-                    maxRegenerationsMessage.classList.remove('hidden');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                
-                // Hide loading state
-                loadingState.classList.add('hidden');
-                
-                // Show error message
-                alert('An error occurred while regenerating the post. Please try again.');
-            });
-        });
-        
-        // Handle bookmark button click
-        bookmarkButton.addEventListener('click', function() {
-            if (!currentPostId) return;
-            
-            // Toggle bookmark icon
-            const icon = bookmarkButton.querySelector('svg');
-            icon.classList.toggle('text-indigo-600');
-            icon.classList.toggle('fill-current');
-            
-            // Send request to toggle bookmark
-            fetch(`/post-generator/bookmark/${currentPostId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update bookmark icon based on response
-                    if (data.is_bookmarked) {
-                        icon.classList.add('text-indigo-600', 'fill-current');
-                    } else {
-                        icon.classList.remove('text-indigo-600', 'fill-current');
+                    const bookmarkResult = await response.json();
+                    if (bookmarkResult.success) {
+                        bookmarkButton.querySelector('svg').classList.toggle('text-indigo-600');
+                        bookmarkButton.querySelector('svg').classList.toggle('fill-current');
                     }
+                } catch (error) {
+                    console.error('Error bookmarking post:', error);
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
             });
-        });
-        
-        // Handle feedback buttons
-        positiveFeedback.addEventListener('click', function() {
-            sendFeedback('positive');
-        });
-        
-        negativeFeedback.addEventListener('click', function() {
-            sendFeedback('negative');
-        });
-        
-        function sendFeedback(type) {
-            if (!currentPostId) return;
+
+        } catch (error) {
+            console.error('Error:', error);
+            loadingState.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            alert(error.message || 'An error occurred while generating the post');
             
-            // Send request to save feedback
-            fetch(`/post-generator/feedback/${currentPostId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-                },
-                body: JSON.stringify({ feedback: type })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (type === 'positive') {
-                        // Show thank you message and hint to refresh for new post
-                        alert('Thank you for your feedback! To create a new post, click the "Create New Post" button.');
-                    } else if (type === 'negative' && data.can_regenerate) {
-                        // Enable regeneration for negative feedback
-                        canRegenerate = true;
-                        regenerateButton.disabled = false;
-                        regenerateButton.classList.remove('opacity-50', 'cursor-not-allowed');
-                        maxRegenerationsMessage.classList.add('hidden');
-                        regenerationTip.classList.remove('hidden');
-                        
-                        // Show message about regeneration
-                        alert('Thank you for your feedback. You can now regenerate the post.');
-                    } else {
-                        // Just thank the user
-                        alert('Thank you for your feedback!');
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            // Re-enable generate button on error
+            generateButton.disabled = false;
+            generateButton.classList.remove('opacity-50', 'cursor-not-allowed');
         }
+    });
+
+    // Handle feedback buttons
+    positiveFeedback.addEventListener('click', async () => {
+        try {
+            const response = await fetch(`/post-generator/feedback/${currentPostId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    feedback: 'positive'
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                feedbackButtons.classList.add('hidden');
+                positiveFeedback.classList.add('bg-green-50', 'border-green-500');
+            }
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
+        }
+    });
+
+    negativeFeedback.addEventListener('click', async () => {
+        try {
+            const response = await fetch(`/post-generator/feedback/${currentPostId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    feedback: 'negative'
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                feedbackButtons.classList.add('hidden');
+                if (regenerationAttempts < 2) {
+                    regenerateButton.classList.remove('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
+        }
+    });
+
+    // Handle regenerate button
+    regenerateButton.addEventListener('click', async () => {
+        if (regenerationAttempts >= 2) {
+            alert('Maximum regeneration attempts reached.');
+            return;
+        }
+
+        try {
+            loadingState.classList.remove('hidden');
+            generatedContent.classList.add('hidden');
+
+            const response = await fetch(`/post-generator/regenerate/${currentPostId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                currentPostId = result.id;
+                regenerationAttempts = result.regeneration_attempts;
+                contentPreview.textContent = result.generated_content;
+                
+                loadingState.classList.add('hidden');
+                generatedContent.classList.remove('hidden');
+                feedbackButtons.classList.remove('hidden');
+                regenerateButton.classList.add('hidden');
+
+                if (regenerationAttempts >= 2) {
+                    regenerateButton.classList.add('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Error regenerating post:', error);
+            loadingState.classList.add('hidden');
+            generatedContent.classList.remove('hidden');
+            alert('Error regenerating post. Please try again.');
+        }
+    });
     });
     </script>
     @endpush
-</x-app-layout> 

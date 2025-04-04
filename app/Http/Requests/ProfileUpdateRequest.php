@@ -18,10 +18,12 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
-            'role_id' => ['required', 'exists:roles,id'],
-            'industry_id' => ['required', 'exists:industries,id'],
+            'role_id' => ['nullable', 'exists:roles,id'],
+            'industry_id' => ['nullable', 'exists:industries,id'],
             'interest_ids' => ['nullable', 'array'],
             'interest_ids.*' => ['exists:interests,id'],
+            'current_password' => ['nullable', 'current_password'],
+            'password' => ['nullable', 'confirmed', 'min:8'],
         ];
     }
 } 

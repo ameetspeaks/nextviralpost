@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use GuzzleHttp\Client;
 
 class GeminiService
 {
@@ -14,7 +15,7 @@ class GeminiService
     public function __construct()
     {
         $this->apiKey = config('services.gemini.api_key');
-        $this->baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+        $this->baseUrl = config('services.gemini.base_url');
         
         if (empty($this->apiKey)) {
             Log::error('Gemini API key is not configured');
@@ -25,87 +26,52 @@ class GeminiService
     public function generateContent($prompt)
     {
         try {
-            Log::info('Making Gemini API request', [
-                'url' => $this->baseUrl,
+            $client = new \GuzzleHttp\Client([
+                'verify' => false, // Disable SSL verification (not recommended for production)
+                'timeout' => 30, // Increase timeout
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ]
+            ]);
+
+            // Add API key to the URL
+            $url = $this->baseUrl . '?key=' . $this->apiKey;
+
+            Log::info('Making request to Gemini API', [
+                'url' => $url,
                 'prompt' => $prompt
             ]);
 
-            $requestData = [
-                'contents' => [
-                    [
-                        'parts' => [
-                            ['text' => $prompt]
+            $response = $client->post($url, [
+                'json' => [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                [
+                                    'text' => $prompt
+                                ]
+                            ]
                         ]
                     ]
-                ],
-                'generationConfig' => [
-                    'temperature' => 0.7,
-                    'topK' => 40,
-                    'topP' => 0.95,
-                    'maxOutputTokens' => 1024,
-                ],
-                'safetySettings' => [
-                    [
-                        'category' => 'HARM_CATEGORY_HARASSMENT',
-                        'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
-                    ],
-                    [
-                        'category' => 'HARM_CATEGORY_HATE_SPEECH',
-                        'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
-                    ],
-                    [
-                        'category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-                        'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
-                    ],
-                    [
-                        'category' => 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                        'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
-                    ]
                 ]
-            ];
-
-            Log::info('Request payload', ['data' => $requestData]);
-
-            $response = Http::withOptions([
-                'verify' => false, // Disable SSL verification for development
-                'timeout' => 30,
-            ])->withHeaders([
-                'Content-Type' => 'application/json',
-                'x-goog-api-key' => $this->apiKey
-            ])->post($this->baseUrl, $requestData);
-
-            Log::info('Gemini API response', [
-                'status' => $response->status(),
-                'body' => $response->json()
             ]);
 
-            if ($response->successful()) {
-                $data = $response->json();
-                if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
-                    return $data['candidates'][0]['content']['parts'][0]['text'];
-                }
-                throw new Exception('Invalid response format from Gemini API');
-            }
+            $data = json_decode($response->getBody(), true);
 
-            $errorBody = $response->json();
-            $errorMessage = $errorBody['error']['message'] ?? $response->body();
-            
-            // Check for specific API key errors
-            if (strpos($errorMessage, 'API key') !== false || strpos($errorMessage, 'authentication') !== false) {
-                Log::error('Gemini API key error', [
-                    'error' => $errorMessage,
-                    'api_key_length' => strlen($this->apiKey)
+            if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+                Log::info('Successfully generated content from Gemini API', [
+                    'content_length' => strlen($data['candidates'][0]['content']['parts'][0]['text'])
                 ]);
-                throw new Exception('Invalid API key. Please check your GEMINI_API_KEY in the .env file.');
+                return $data['candidates'][0]['content']['parts'][0]['text'];
             }
 
-            throw new Exception('Gemini API Error: ' . $errorMessage);
-        } catch (Exception $e) {
-            Log::error('Gemini API Error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            Log::error('Unexpected response format from Gemini API', [
+                'response' => $data
             ]);
-            throw new Exception('Error generating content: ' . $e->getMessage());
+            throw new \Exception('Unexpected response format from Gemini API');
+        } catch (\Exception $e) {
+            Log::error('Gemini API Error: ' . $e->getMessage());
+            throw new \Exception('Failed to generate content: ' . $e->getMessage());
         }
     }
 } 

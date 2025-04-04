@@ -29,7 +29,9 @@ class ProfileController extends BaseController
         $user = Auth::user();
         return view('profile.edit', [
             'user' => $user,
-            'roles' => Role::where('is_active', true)->get(),
+            'roles' => Role::where('is_active', true)
+                          ->where('name', '!=', 'superadmin')
+                          ->get(),
             'industries' => Industry::where('is_active', true)->get(),
             'interests' => Interest::where('is_active', true)->get(),
             'userPreferences' => $user->preference,
@@ -51,17 +53,11 @@ class ProfileController extends BaseController
         $user->email = $validated['email'];
 
         // Update password if provided
-        if ($request->filled('current_password')) {
+        if ($request->filled('current_password') && $request->filled('password')) {
             if (!Hash::check($request->current_password, $user->password)) {
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'errors' => ['current_password' => ['The current password is incorrect.']]
-                    ], 422);
-                }
                 return back()->withErrors(['current_password' => 'The current password is incorrect.']);
             }
-            $user->password = Hash::make($validated['new_password']);
+            $user->password = Hash::make($validated['password']);
         }
 
         $user->save();
@@ -70,23 +66,14 @@ class ProfileController extends BaseController
         $user->preference()->updateOrCreate(
             ['user_id' => $user->id],
             [
-                'role_id' => $validated['role_id'],
-                'industry_id' => $validated['industry_id']
+                'role_id' => $validated['role_id'] ?? null,
+                'industry_id' => $validated['industry_id'] ?? null
             ]
         );
 
         // Update interests
         if (isset($validated['interest_ids']) && is_array($validated['interest_ids'])) {
             $user->interests()->sync($validated['interest_ids']);
-        } else {
-            $user->interests()->detach();
-        }
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile updated successfully'
-            ]);
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');

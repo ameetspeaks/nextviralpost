@@ -4,21 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class PromptTemplate extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'title',
-        'slug',
-        'content',
         'post_type_id',
         'tone_id',
+        'title',
+        'content',
         'category',
         'post_goal',
         'virality_factor',
-        'version',
         'is_active'
     ];
 
@@ -39,44 +38,73 @@ class PromptTemplate extends Model
 
     public function generatePrompt($userData)
     {
-        $prompt = $this->content;
-        
-        // Get user preferences for industry and role
-        $userPreferences = UserPreference::where('user_id', auth()->id())->first();
-        
-        // Get post type and tone names
-        $postType = PostType::find($userData['post_type_id']);
-        $tone = PostTone::find($userData['tone_id']);
-        
-        // Replace placeholders with user data
-        $replacements = [
-            '{industry}' => $userPreferences->industry->name ?? 'Professional',
-            '{role}' => $userPreferences->role->name ?? 'Professional',
-            '{roles}' => $userPreferences->role->name ?? 'Professional',
-            '{keywords}' => $userData['keywords'] ?? '',
-            '{word_limit}' => $userData['word_limit'] ?? 50,
-            '{raw_content}' => $userData['raw_content'] ?? '',
-            '[Industry]' => $userPreferences->industry->name ?? 'Professional',
-            '[Role]' => $userPreferences->role->name ?? 'Professional',
-            '[What is Post About]' => $userData['raw_content'] ?? '',
-            '[Keyword(s)]' => $userData['keywords'] ?? '',
-            '[Word Limit]' => $userData['word_limit'] ?? 50,
-            '[post_type]' => $postType->name ?? 'LinkedIn Post',
-            '[Tone]' => $tone->name ?? 'Professional'
-        ];
-
-        foreach ($replacements as $placeholder => $value) {
-            // Skip empty placeholders if the value is empty
-            if (empty($value) && strpos($prompt, $placeholder) !== false) {
-                // Remove the placeholder and any surrounding text that might be affected
-                $prompt = preg_replace('/\s*' . preg_quote($placeholder, '/') . '\s*/', '', $prompt);
-            } else {
-                $prompt = str_replace($placeholder, $value, $prompt);
+        try {
+            $template = $this->content;
+            
+            // Validate required user data
+            $requiredFields = ['raw_content', 'keywords', 'word_limit', 'industry', 'role', 'post_type', 'tone'];
+            foreach ($requiredFields as $field) {
+                if (empty($userData[$field])) {
+                    throw new \Exception("Missing required field: {$field}");
+                }
             }
-        }
+            
+            // Extract values from nested objects
+            $industry = is_object($userData['industry']) ? $userData['industry']->name : $userData['industry'];
+            $role = is_object($userData['role']) ? $userData['role']->name : $userData['role'];
+            
+            // Define all placeholders and their values
+            $replacements = [
+                '{{raw_content}}' => $userData['raw_content'],
+                '{{keywords}}' => $userData['keywords'],
+                '{{word_limit}}' => $userData['word_limit'],
+                '{{industry}}' => $industry,
+                '{{role}}' => $role,
+                '{{post_type}}' => $userData['post_type'],
+                '{{tone}}' => $userData['tone']
+            ];
 
-        // Clean up any double spaces or empty lines
-        $prompt = preg_replace('/\s+/', ' ', $prompt);
-        return trim($prompt);
+            // Replace all placeholders in the template
+            $prompt = str_replace(
+                array_keys($replacements),
+                array_values($replacements),
+                $template
+            );
+
+            // Verify all placeholders were replaced
+            $unreplacedPlaceholders = [];
+            foreach ($replacements as $placeholder => $value) {
+                if (strpos($prompt, $placeholder) !== false) {
+                    $unreplacedPlaceholders[] = $placeholder;
+                }
+            }
+
+            if (!empty($unreplacedPlaceholders)) {
+                throw new \Exception("Failed to replace placeholders: " . implode(', ', $unreplacedPlaceholders));
+            }
+
+            // Clean up any double spaces or empty lines
+            $prompt = preg_replace('/\s+/', ' ', $prompt);
+            $prompt = trim($prompt);
+
+            // Log the generated prompt for debugging
+            Log::debug('Generated prompt', [
+                'template_id' => $this->id,
+                'original_template' => $template,
+                'generated_prompt' => $prompt,
+                'user_data' => $userData
+            ]);
+
+            return $prompt;
+
+        } catch (\Exception $e) {
+            Log::error('Error generating prompt', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'template_id' => $this->id,
+                'user_data' => $userData
+            ]);
+            throw new \Exception('Error generating prompt: ' . $e->getMessage());
+        }
     }
 } 

@@ -18,7 +18,7 @@ class ViralTemplateController extends Controller
         ->orderBy('likes', 'desc')
         ->paginate(12);
 
-        return view('viral-content.index', compact('templates'));
+        return view('viral-templates.index', compact('templates'));
     }
 
     public function show(ViralTemplate $template)
@@ -27,7 +27,7 @@ class ViralTemplateController extends Controller
             $query->where('user_id', Auth::id());
         }]);
         
-        return view('viral-content.show', compact('template'));
+        return view('viral-templates.show', compact('template'));
     }
 
     public function bookmark(Request $request, ViralTemplate $template)

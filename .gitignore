@@ -25,3 +25,5 @@ yarn-error.log
 .DS_Store
 /storage/firebase/firebase_credentials.json
 firebase-credentials.json
+/.vagrant
+.env.*.local

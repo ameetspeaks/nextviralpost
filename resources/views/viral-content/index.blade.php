@@ -1,109 +1,125 @@
-<x-app-layout>
-    <div class="space-y-6">
-        <!-- Header -->
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Viral Content</h1>
-                <p class="mt-1 text-sm text-gray-500">Discover and get inspired by viral LinkedIn posts</p>
-            </div>
-            <div class="flex items-center space-x-3">
-                <div class="relative">
-                    <select class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md">
-                        <option>Most Recent</option>
-                        <option>Most Popular</option>
-                        <option>Most Bookmarked</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+@php
+use Illuminate\Support\Facades\Auth;
+@endphp
 
-        <!-- Templates Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @forelse($templates as $template)
-                <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
-                    <div class="p-6">
-                        <div class="flex items-start justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="flex-shrink-0">
-                                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                                        <span class="text-indigo-700 font-medium">{{ substr($template->username, 0, 1) }}</span>
+<x-app-layout>
+    <div class="min-h-screen bg-gray-50 flex">
+        @include('layouts.sidebar')
+
+        <!-- Main Content -->
+        <div class="flex-1">
+            <!-- Header -->
+            <header class="bg-white shadow-sm">
+                <div class="px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between py-4">
+                        <div>
+                            <h1 class="text-2xl font-semibold text-gray-900">Viral Content</h1>
+                            <p class="mt-1 text-sm text-gray-500">Discover and get inspired by viral LinkedIn posts</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="relative">
+                                <select class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md">
+                                    <option>Most Recent</option>
+                                    <option>Most Popular</option>
+                                    <option>Most Bookmarked</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="px-4 sm:px-6 lg:px-8 py-6">
+                <!-- Templates Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @forelse($templates as $template)
+                        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
+                            <div class="p-6">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                                <span class="text-indigo-700 font-medium">{{ substr($template->username, 0, 1) }}</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">{{ $template->username }}</p>
+                                            <p class="text-xs text-gray-500">{{ $template->created_at->diffForHumans() }}</p>
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $template->username }}</p>
-                                    <p class="text-xs text-gray-500">{{ $template->created_at->diffForHumans() }}</p>
+
+                                <div class="mt-4">
+                                    <p class="text-gray-800 line-clamp-3">{{ $template->post_content }}</p>
+                                </div>
+
+                                <div class="mt-4 flex items-center justify-between">
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                        <span class="flex items-center">
+                                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                            </svg>
+                                            {{ number_format($template->likes) }}
+                                        </span>
+                                        <span class="flex items-center">
+                                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                            </svg>
+                                            {{ number_format($template->comments) }}
+                                        </span>
+                                        <span class="flex items-center">
+                                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                            </svg>
+                                            {{ number_format($template->shares) }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 flex items-center justify-between border-t pt-4">
+                                    <button type="button" 
+                                            onclick="openInspirationModal('{{ $template->id }}')"
+                                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                        Get Inspiration
+                                    </button>
+
+                                    <button type="button"
+                                            onclick="toggleBookmark('{{ $template->id }}')"
+                                            class="bookmark-btn inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                            data-template-id="{{ $template->id }}"
+                                            data-bookmarked="{{ $template->isBookmarkedBy(auth()->user()) ? 'true' : 'false' }}">
+                                        <svg class="h-5 w-5 {{ $template->isBookmarkedBy(auth()->user()) ? 'text-indigo-600' : 'text-gray-400' }}"
+                                             fill="{{ $template->isBookmarkedBy(auth()->user()) ? 'currentColor' : 'none' }}"
+                                             stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="mt-4">
-                            <p class="text-gray-800 line-clamp-3">{{ $template->post_content }}</p>
-                        </div>
-
-                        <div class="mt-4 flex items-center justify-between">
-                            <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                <span class="flex items-center">
-                                    <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                    </svg>
-                                    {{ number_format($template->likes) }}
-                                </span>
-                                <span class="flex items-center">
-                                    <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                    </svg>
-                                    {{ number_format($template->comments) }}
-                                </span>
-                                <span class="flex items-center">
-                                    <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                    </svg>
-                                    {{ number_format($template->shares) }}
-                                </span>
+                    @empty
+                        <div class="col-span-3">
+                            <div class="text-center py-12">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">No viral templates</h3>
+                                <p class="mt-1 text-sm text-gray-500">Get started by creating your first viral template.</p>
                             </div>
                         </div>
-
-                        <div class="mt-4 flex items-center justify-between border-t pt-4">
-                            <button type="button" 
-                                    onclick="openInspirationModal('{{ $template->id }}')"
-                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                                Get Inspiration
-                            </button>
-
-                            <button type="button"
-                                    onclick="toggleBookmark('{{ $template->id }}')"
-                                    class="bookmark-btn inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                    data-template-id="{{ $template->id }}"
-                                    data-bookmarked="{{ $template->isBookmarkedBy(auth()->user()) ? 'true' : 'false' }}">
-                                <svg class="h-5 w-5 {{ $template->isBookmarkedBy(auth()->user()) ? 'text-indigo-600' : 'text-gray-400' }}"
-                                     fill="{{ $template->isBookmarkedBy(auth()->user()) ? 'currentColor' : 'none' }}"
-                                     stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
-            @empty
-                <div class="col-span-3">
-                    <div class="text-center py-12">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No viral templates</h3>
-                        <p class="mt-1 text-sm text-gray-500">Get started by creating your first viral template.</p>
-                    </div>
-                </div>
-            @endforelse
-        </div>
 
-        <!-- Pagination -->
-        <div class="mt-6">
-            {{ $templates->links() }}
+                <!-- Pagination -->
+                <div class="mt-6">
+                    {{ $templates->links() }}
+                </div>
+            </main>
         </div>
     </div>
 

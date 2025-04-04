@@ -18,13 +18,14 @@ class User extends Authenticatable
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
         'is_superadmin',
+        'email_verified_at',
         'facebook_token',
         'facebook_refresh_token',
         'facebook_expires_in',
@@ -39,17 +40,26 @@ class User extends Authenticatable
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
         'remember_token',
-        'facebook_token',
-        'facebook_refresh_token',
-        'twitter_token',
-        'twitter_refresh_token',
-        'linkedin_token',
-        'linkedin_refresh_token',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_superadmin' => 'boolean',
+        'is_profile_complete' => 'boolean',
+        'facebook_expires_in' => 'integer',
+        'twitter_expires_in' => 'integer',
+        'linkedin_expires_in' => 'integer',
     ];
 
     /**
@@ -70,9 +80,28 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Get the posts for the user.
+     */
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Get the bookmarks for the user.
+     */
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+
+    /**
+     * Get the feedback for the user.
+     */
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class);
     }
 
     public function hasSocialMediaConnection($provider)

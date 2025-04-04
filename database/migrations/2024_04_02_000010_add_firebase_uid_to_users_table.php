@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('prompt_templates', function (Blueprint $table) {
-            $table->string('slug')->nullable()->after('title');
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('firebase_uid')->nullable()->unique()->after('id');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('prompt_templates', function (Blueprint $table) {
-            $table->dropColumn('slug');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('firebase_uid');
         });
     }
 }; 

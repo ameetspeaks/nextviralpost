@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,7 +19,7 @@ class DatabaseSeeder extends Seeder
             User::factory()->create([
                 'name' => 'Super Admin',
                 'email' => 'admin@nextviralpost.com',
-                'password' => bcrypt('Admin@123!'),
+                'password' => Hash::make('Admin@123!'),
                 'is_superadmin' => true,
             ]);
         }
@@ -32,9 +33,11 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call([
-            MasterDataSeeder::class,
+            RoleSeeder::class,
             PostTypeSeeder::class,
             PostToneSeeder::class,
+            ToneSeeder::class,
+            MasterDataSeeder::class,
             PromptTemplateSeeder::class,
             ProductLaunchPromptTemplateSeeder::class,
             ViralTemplateSeeder::class,
