@@ -15,45 +15,27 @@ class RoleSeeder extends Seeder
     {
         $roles = [
             [
-                'name' => 'Super Admin',
-                'description' => 'Has full access to all features',
-                'permissions' => [
-                    'edit_content' => true,
-                    'manage_users' => true,
-                    'manage_roles' => true
-                ],
-                'slug' => 'super-admin',
-                'is_active' => true
-            ],
-            [
-                'name' => 'Content Manager',
-                'description' => 'Can manage content and templates',
-                'permissions' => [
-                    'edit_content' => true,
-                    'manage_users' => false,
-                    'manage_roles' => false
-                ],
-                'slug' => 'content-manager',
-                'is_active' => true
+                'name' => 'Admin',
+                'description' => 'Administrator with full access',
+                'permissions' => ['*'],
+                'is_active' => true,
             ],
             [
                 'name' => 'User',
                 'description' => 'Regular user with basic access',
-                'permissions' => [
-                    'edit_content' => false,
-                    'manage_users' => false,
-                    'manage_roles' => false
-                ],
-                'slug' => 'user',
-                'is_active' => true
-            ]
+                'permissions' => ['create_posts', 'view_posts', 'edit_posts'],
+                'is_active' => true,
+            ],
         ];
 
-        foreach ($roles as $roleData) {
-            Role::updateOrCreate(
-                ['slug' => $roleData['slug']],
-                $roleData
-            );
+        foreach ($roles as $role) {
+            Role::create([
+                'name' => $role['name'],
+                'description' => $role['description'],
+                'permissions' => $role['permissions'],
+                'is_active' => $role['is_active'],
+                'slug' => Str::slug($role['name'])
+            ]);
         }
     }
 } 

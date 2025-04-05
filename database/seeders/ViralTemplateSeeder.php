@@ -18,74 +18,68 @@ class ViralTemplateSeeder extends Seeder
 
         $templates = [
             [
-                'username' => 'Peredox Digital',
-                'post_content' => "3 simple tips make sure you're on the right track and set up for success before you start creating content:\n\n✅ Identity your audience\n✅ Do your research\n✅ Define your post schedule",
-                'post_link' => 'https://linkedin.com/post/1',
-                'likes' => 103,
-                'comments' => 1,
-                'shares' => 1,
-                'date_posted' => Carbon::now()->subYears(3),
-                'bookmark_count' => 5,
-                'inspiration_count' => 2,
-                'post_type_id' => $postTypes->first()?->id,
-                'tone_id' => $tones->first()?->id,
-                'is_active' => true
+                'username' => 'marketing_expert',
+                'post_content' => '5 proven strategies to increase your social media engagement by 200% in just 30 days! 🚀
+
+1. Create content that solves problems
+2. Use eye-catching visuals
+3. Engage with your audience
+4. Post consistently
+5. Analyze and optimize
+
+Which strategy will you try first? #SocialMediaTips #Marketing',
+                'post_link' => 'https://example.com/social-media-strategies',
+                'likes' => 1250,
+                'comments' => 89,
+                'shares' => 45,
+                'post_type_id' => $postTypes->first()->id,
+                'tone_id' => $tones->first()->id,
+                'is_active' => true,
+                'date_posted' => Carbon::now()->subDays(7),
+                'repurpose_count' => 0,
+                'user_ids' => null
             ],
             [
-                'username' => 'GREG ISENBERG',
-                'post_content' => "If distribution is the new moat, where is the Y-Combinator for creating distribution, not software?\n\nI don't think it exists.\n\nThere isn't much product risk anymore in most startups.",
-                'post_link' => 'https://linkedin.com/post/2',
-                'likes' => 1400,
-                'comments' => 215,
-                'shares' => 86,
-                'date_posted' => Carbon::now()->subMonths(7),
-                'bookmark_count' => 120,
-                'inspiration_count' => 45,
-                'post_type_id' => $postTypes->skip(1)->first()?->id,
-                'tone_id' => $tones->skip(1)->first()?->id,
-                'is_active' => true
+                'username' => 'tech_innovator',
+                'post_content' => 'The future of AI in business is here! 🤖
+
+Here\'s how companies are leveraging AI to:
+- Automate repetitive tasks
+- Improve customer service
+- Enhance decision making
+- Boost productivity
+
+Are you ready for the AI revolution? #AI #BusinessInnovation',
+                'post_link' => 'https://example.com/ai-in-business',
+                'likes' => 980,
+                'comments' => 67,
+                'shares' => 32,
+                'post_type_id' => $postTypes->first()->id,
+                'tone_id' => $tones->first()->id,
+                'is_active' => true,
+                'date_posted' => Carbon::now()->subDays(5),
+                'repurpose_count' => 0,
+                'user_ids' => null
             ],
             [
-                'username' => 'Ubaid Ur Rehman',
-                'post_content' => "How I create Tweet Carousels in Canva.\n(perfect for content creators)\n\nHit Repost, if you found it helpful.",
-                'post_link' => 'https://linkedin.com/post/3',
-                'likes' => 137,
-                'comments' => 143,
-                'shares' => 4,
-                'date_posted' => Carbon::now()->subYear(),
-                'bookmark_count' => 25,
-                'inspiration_count' => 12,
-                'post_type_id' => $postTypes->skip(2)->first()?->id,
-                'tone_id' => $tones->skip(2)->first()?->id,
-                'is_active' => true
-            ],
-            [
-                'username' => 'Alex Hormozi',
-                'post_content' => "The secret to viral content:\n\n1. Solve a real problem\n2. Make it simple to understand\n3. Share your unique perspective\n4. Be consistent\n\nThat's it. No magic formula.",
-                'post_link' => 'https://linkedin.com/post/4',
-                'likes' => 2500,
-                'comments' => 180,
-                'shares' => 320,
-                'date_posted' => Carbon::now()->subMonths(2),
-                'bookmark_count' => 450,
-                'inspiration_count' => 280,
-                'post_type_id' => $postTypes->first()?->id,
-                'tone_id' => $tones->first()?->id,
-                'is_active' => true
-            ],
-            [
-                'username' => 'Sahil Bloom',
-                'post_content' => "10 lessons I learned from building a $100M business:\n\n1. Focus on distribution\n2. Build in public\n3. Network effectively\n4. Stay consistent\n5. Learn from failures\n\n(Thread) 🧵",
-                'post_link' => 'https://linkedin.com/post/5',
-                'likes' => 3200,
-                'comments' => 420,
-                'shares' => 580,
-                'date_posted' => Carbon::now()->subMonths(1),
-                'bookmark_count' => 680,
-                'inspiration_count' => 420,
-                'post_type_id' => $postTypes->skip(1)->first()?->id,
-                'tone_id' => $tones->skip(1)->first()?->id,
-                'is_active' => true
+                'username' => 'startup_mentor',
+                'post_content' => '3 critical mistakes that kill startups in their first year:
+
+1. Not validating the market
+2. Running out of cash
+3. Hiring the wrong team
+
+Learn from these mistakes and build a sustainable business! #StartupTips #Entrepreneurship',
+                'post_link' => 'https://example.com/startup-mistakes',
+                'likes' => 750,
+                'comments' => 45,
+                'shares' => 28,
+                'post_type_id' => $postTypes->first()->id,
+                'tone_id' => $tones->first()->id,
+                'is_active' => true,
+                'date_posted' => Carbon::now()->subDays(3),
+                'repurpose_count' => 0,
+                'user_ids' => null
             ]
         ];
 

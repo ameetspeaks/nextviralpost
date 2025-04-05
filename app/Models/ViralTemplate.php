@@ -21,15 +21,18 @@ class ViralTemplate extends Model
         'post_type_id',
         'tone_id',
         'is_active',
-        'date_posted'
+        'date_posted',
+        'repurpose_count',
+        'user_ids'
     ];
 
     protected $casts = [
+        'is_active' => 'boolean',
+        'date_posted' => 'datetime',
         'likes' => 'integer',
         'comments' => 'integer',
         'shares' => 'integer',
-        'is_active' => 'boolean',
-        'date_posted' => 'datetime'
+        'repurpose_count' => 'integer'
     ];
 
     public function postType()
@@ -73,5 +76,25 @@ class ViralTemplate extends Model
             ->where('type', 'inspire')
             ->with('user')
             ->latest();
+    }
+
+    public function incrementRepurposeCount($userId)
+    {
+        $this->increment('repurpose_count');
+        
+        $userIds = $this->user_ids ? explode(',', $this->user_ids) : [];
+        if (!in_array($userId, $userIds)) {
+            $userIds[] = $userId;
+            $this->user_ids = implode(',', $userIds);
+            $this->save();
+        }
+    }
+
+    public function getUsersAttribute()
+    {
+        if (!$this->user_ids) {
+            return collect();
+        }
+        return User::whereIn('id', explode(',', $this->user_ids))->get();
     }
 }

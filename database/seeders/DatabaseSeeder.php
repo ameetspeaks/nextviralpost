@@ -33,13 +33,14 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call([
+            UserSeeder::class,
             RoleSeeder::class,
+            IndustrySeeder::class,
             PostTypeSeeder::class,
             PostToneSeeder::class,
-            ToneSeeder::class,
-            MasterDataSeeder::class,
+            UserPreferenceSeeder::class,
             PromptTemplateSeeder::class,
-            ProductLaunchPromptTemplateSeeder::class,
+            PostSeeder::class,
             ViralTemplateSeeder::class,
         ]);
     }

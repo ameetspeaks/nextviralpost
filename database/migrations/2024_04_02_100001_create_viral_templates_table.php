@@ -16,9 +16,12 @@ return new class extends Migration
             $table->integer('likes')->default(0);
             $table->integer('comments')->default(0);
             $table->integer('shares')->default(0);
-            $table->timestamp('date_posted');
-            $table->integer('bookmark_count')->default(0);
-            $table->integer('inspiration_count')->default(0);
+            $table->foreignId('post_type_id')->nullable()->constrained('post_types')->onDelete('set null');
+            $table->foreignId('tone_id')->nullable()->constrained('post_tones')->onDelete('set null');
+            $table->boolean('is_active')->default(true);
+            $table->timestamp('date_posted')->nullable();
+            $table->integer('repurpose_count')->default(0);
+            $table->text('user_ids')->nullable();
             $table->timestamps();
         });
     }

@@ -6,93 +6,25 @@
 
 @section('content')
 <div class="flex h-screen bg-gray-50">
-    <!-- Left Sidebar -->
-    <aside class="fixed inset-y-0 left-0 w-56 bg-white shadow-sm overflow-y-auto border-r border-gray-200">
-        <!-- Logo Section -->
-        <div class="px-4 py-4 border-b">
-            <div class="flex items-center">
-                <svg class="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <span class="ml-2 text-lg font-semibold text-gray-900">NextViralPost</span>
-            </div>
-            <p class="mt-1 text-xs text-gray-500">AI Post Generator</p>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="px-2 py-4">
-            <div class="space-y-1">
-                <a href="{{ route('dashboard') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
-                    <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                    </svg>
-                    Dashboard
-                </a>
-
-                <a href="{{ route('post-generator.index') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg bg-indigo-50 text-indigo-600">
-                    <svg class="mr-3 h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    Generate Post
-                </a>
-
-                <a href="{{ route('viral-content.index') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
-                    <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                    </svg>
-                    Viral Recipe
-                </a>
-
-                <a href="{{ route('bookmarks.index') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
-                    <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                    </svg>
-                    Bookmarks
-                </a>
-
-                <a href="{{ route('my-posts.index') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
-                    <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15"></path>
-                    </svg>
-                    My Posts
-                </a>
-            </div>
-
-            <!-- Settings Section -->
-            <div class="mt-6 pt-6 border-t">
-                <div class="px-3">
-                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Settings</h3>
-                </div>
-                <div class="mt-3 space-y-1">
-                    <a href="{{ route('profile.show') }}" class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
-                        <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
-                        Profile Settings
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </aside>
+    <!-- Sidebar -->
+    <x-sidebar-navigation />
 
     <!-- Main Content Area -->
     <main class="flex-1 ml-56">
         <div class="py-6">
-            <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Header Section -->
-                <div class="flex justify-between items-center mb-6">
+            <div class="max-w-[1600px] mx-auto px-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center">
                     <div>
                         <h1 class="text-2xl font-semibold text-gray-900">Generate Post</h1>
                         <p class="mt-1 text-sm text-gray-500">Create engaging content using AI</p>
                     </div>
-                    <div>
-                        <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Create New Post
-                        </button>
-                    </div>
+                    <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Create New Post
+                    </button>
                 </div>
 
                 <!-- Main Content -->
@@ -376,10 +308,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const contentPreview = document.getElementById('contentPreview');
     const wordLimitInput = document.getElementById('word_limit');
     const wordLimitValue = document.getElementById('word_limit_value');
-    const bookmarkButton = document.getElementById('bookmarkButton');
-    const positiveFeedback = document.getElementById('positiveFeedback');
-    const negativeFeedback = document.getElementById('negativeFeedback');
-    const regenerateButton = document.getElementById('regenerateButton');
+    let bookmarkButton = document.getElementById('bookmarkButton');
+    let positiveFeedback = document.getElementById('positiveFeedback');
+    let negativeFeedback = document.getElementById('negativeFeedback');
+    let regenerateButton = document.getElementById('regenerateButton');
     const feedbackButtons = document.getElementById('feedbackButtons');
     let currentTemplate = null;
 

@@ -11,6 +11,8 @@ use App\Http\Controllers\ViralTemplateController;
 use App\Http\Controllers\ViralContentController;
 use App\Http\Controllers\MyPostsController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\RepurposedContentController;
+use App\Http\Controllers\TrendingTopicController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +81,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/viral-content/{id}', [ViralContentController::class, 'show'])->name('viral-content.show');
     Route::post('/viral-content/{id}/bookmark', [ViralContentController::class, 'bookmark'])->name('viral-content.bookmark');
     Route::post('/viral-content/{id}/inspire', [ViralContentController::class, 'inspire'])->name('viral-content.inspire');
+    Route::post('/viral-content/{id}/repurpose', [RepurposedContentController::class, 'store'])->name('viral-content.repurpose');
+    
+    // Trending Topics Routes
+    Route::get('/trending-topics', [TrendingTopicController::class, 'index'])->name('trending-topics.index');
+    Route::get('/trending-topics/{trendingTopic}', [TrendingTopicController::class, 'show'])->name('trending-topics.show');
     
     // Bookmark routes
     Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks.index');
@@ -89,6 +96,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-posts/{id}', [MyPostsController::class, 'show'])->name('my-posts.show');
     Route::post('/my-posts/{id}/copy', [MyPostsController::class, 'copyToClipboard'])->name('my-posts.copy');
     Route::get('/my-posts/{id}/share', [MyPostsController::class, 'shareToLinkedIn'])->name('my-posts.share');
+
+    // Repurposed Content Routes
+    Route::get('/repurposed-content', [RepurposedContentController::class, 'index'])->name('repurposed-content.index');
+    Route::get('/repurposed-content/create/{viralTemplate}', [RepurposedContentController::class, 'create'])->name('repurposed-content.create');
+    Route::post('/repurposed-content/{viralTemplate}', [RepurposedContentController::class, 'store'])->name('repurposed-content.store');
+    Route::get('/repurposed-content/{repurposedContent}', [RepurposedContentController::class, 'show'])->name('repurposed-content.show');
 });
 
 // Admin routes are now in routes/admin.php
+
+// Viral Content Routes
+Route::middleware(['auth'])->group(function () {
+    Route::post('/viral-content/search', [ViralContentController::class, 'searchTemplates'])->name('viral-content.search');
+    Route::post('/viral-content/generate-ideas', [ViralContentController::class, 'generateContentIdeas'])->name('viral-content.generate-ideas');
+    Route::get('/viral-content/analytics', [ViralContentController::class, 'getAnalytics'])->name('viral-content.analytics');
+});

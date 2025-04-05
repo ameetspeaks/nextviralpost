@@ -21,7 +21,9 @@ class Post extends Model
         'is_bookmarked',
         'feedback',
         'feedback_at',
-        'regeneration_attempts'
+        'regeneration_attempts',
+        'source',
+        'viral_template_id'
     ];
 
     protected $casts = [
@@ -49,6 +51,11 @@ class Post extends Model
     public function bookmarks()
     {
         return $this->hasMany(Bookmark::class);
+    }
+
+    public function viralTemplate()
+    {
+        return $this->belongsTo(ViralTemplate::class);
     }
 
     public function isBookmarkedBy(User $user)

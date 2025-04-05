@@ -7,15 +7,34 @@ use App\Models\Post;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class MyPostsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Get user's posts
-        $posts = Post::where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        // Get user's posts with filters
+        $query = Post::where('user_id', Auth::id());
+
+        // Apply source filter if provided
+        if ($request->has('source') && in_array($request->source, ['generated', 'repurposed'])) {
+            $query->where('source', $request->source);
+        }
+
+        // Apply type filter if provided
+        if ($request->has('type') && in_array($request->type, ['linkedin', 'twitter', 'blog'])) {
+            $query->whereHas('postType', function($q) use ($request) {
+                $q->where('slug', $request->type);
+            });
+        }
+
+        // Apply period filter if provided
+        if ($request->has('period') && in_array($request->period, ['7', '30', '90'])) {
+            $query->where('created_at', '>=', Carbon::now()->subDays($request->period));
+        }
+
+        // Get posts with pagination
+        $posts = $query->orderBy('created_at', 'desc')->paginate(10);
 
         // Get unique keywords used by the user
         $keywords = Post::where('user_id', Auth::id())
