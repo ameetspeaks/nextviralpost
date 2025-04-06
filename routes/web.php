@@ -13,6 +13,9 @@ use App\Http\Controllers\MyPostsController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\RepurposedContentController;
 use App\Http\Controllers\TrendingTopicController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\Admin\SubscriptionPlanController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,9 +65,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
+    // Subscription Routes
+    Route::get('/subscription/select', [SubscriptionController::class, 'select'])->name('subscription.select');
+    Route::post('/subscription/trial/{subscription}', [SubscriptionController::class, 'startTrial'])->name('subscription.trial');
+    Route::post('/subscription/purchase/{subscription}', [SubscriptionController::class, 'purchase'])->name('subscription.purchase');
+    Route::get('/subscription/manage', [SubscriptionController::class, 'manage'])->name('subscription.manage');
+    Route::get('/subscription/analytics', [SubscriptionController::class, 'analytics'])->name('subscription.analytics');
+    Route::post('/subscription/cancel', [SubscriptionController::class, 'cancel'])->name('subscription.cancel');
+    
     // Post Generator Routes
-    Route::get('/post-generator', [PostGeneratorController::class, 'index'])->name('post-generator.index');
-    Route::post('/post-generator/generate', [PostGeneratorController::class, 'generate'])->name('post-generator.generate');
+    Route::middleware(['auth', 'subscription'])->group(function () {
+        Route::get('/post-generator', [PostGeneratorController::class, 'index'])->name('post-generator.index');
+        Route::post('/post-generator/generate', [PostGeneratorController::class, 'generate'])->name('post-generator.generate');
+    });
     Route::post('/post-generator/check-template', [PostGeneratorController::class, 'checkTemplate'])->name('post-generator.check-template');
     Route::post('/post-generator/{post}/bookmark', [PostGeneratorController::class, 'bookmark'])->name('post-generator.bookmark');
     Route::post('/post-generator/{post}/feedback', [PostGeneratorController::class, 'feedback'])->name('post-generator.feedback');
@@ -111,4 +124,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/viral-content/search', [ViralContentController::class, 'searchTemplates'])->name('viral-content.search');
     Route::post('/viral-content/generate-ideas', [ViralContentController::class, 'generateContentIdeas'])->name('viral-content.generate-ideas');
     Route::get('/viral-content/analytics', [ViralContentController::class, 'getAnalytics'])->name('viral-content.analytics');
+});
+
+Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard-sa', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('subscription-plans', SubscriptionPlanController::class);
 });

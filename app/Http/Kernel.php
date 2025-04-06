@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'superadmin' => \App\Http\Middleware\SuperAdminMiddleware::class,
         'firebase.auth' => \App\Http\Middleware\FirebaseAuthentication::class,
         'onboarding' => \App\Http\Middleware\EnsureOnboardingIsComplete::class,
+        'subscription' => \App\Http\Middleware\CheckSubscription::class,
     ];
 } 

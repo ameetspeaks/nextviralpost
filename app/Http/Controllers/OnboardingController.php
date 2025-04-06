@@ -28,7 +28,7 @@ class OnboardingController extends BaseController
 
         return view('auth.onboarding', [
             'roles' => Role::where('is_active', true)
-                          ->where('name', '!=', 'Super Admin')
+                          ->whereNotIn('name', ['Admin', 'Super Admin'])
                           ->get(),
             'industries' => Industry::where('is_active', true)->get(),
             'interests' => Interest::where('is_active', true)->get(),

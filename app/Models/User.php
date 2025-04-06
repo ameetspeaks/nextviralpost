@@ -139,4 +139,40 @@ class User extends Authenticatable
     {
         return $this->preference && $this->preference->onboarding_completed;
     }
+
+    public function userSubscriptions()
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(UserSubscription::class)
+            ->where('status', 'active')
+            ->where('end_date', '>', now())
+            ->latest();
+    }
+
+    public function creditTransactions()
+    {
+        return $this->hasMany(CreditTransaction::class);
+    }
+
+    public function hasActiveSubscription()
+    {
+        return $this->activeSubscription()->exists();
+    }
+
+    public function hasCredits()
+    {
+        return $this->activeSubscription?->hasCredits() ?? false;
+    }
+
+    public function useCredits($amount = 1)
+    {
+        if ($this->hasActiveSubscription()) {
+            return $this->activeSubscription->useCredits($amount);
+        }
+        return false;
+    }
 }

@@ -8,9 +8,13 @@
     "require": {
         "php": "^8.2",
         "guzzlehttp/guzzle": "^7.2",
+        "kreait/firebase-php": "^7.18",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
-        "laravel/tinker": "^2.8"
+        "laravel/tinker": "^2.8",
+        "mailgun/mailgun-php": "^4.3",
+        "nyholm/psr7": "^1.8",
+        "symfony/http-client": "^7.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

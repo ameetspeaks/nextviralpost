@@ -8,6 +8,7 @@ use App\Models\PostTone;
 use App\Models\PromptTemplate;
 use App\Models\UserPreference;
 use App\Services\GeminiService;
+use App\Traits\ManagesCredits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,8 @@ use App\Models\Bookmark;
 
 class PostGeneratorController extends Controller
 {
+    use ManagesCredits;
+
     protected $geminiService;
 
     public function __construct(GeminiService $geminiService)
@@ -28,12 +31,24 @@ class PostGeneratorController extends Controller
     {
         $postTypes = PostType::where('is_active', true)->get();
         $tones = PostTone::where('is_active', true)->get();
-        return view('post-generator.index', compact('postTypes', 'tones'));
+        
+        // Check if user can generate posts
+        $canGenerate = $this->canPerformAction();
+        
+        return view('post-generator.index', compact('postTypes', 'tones', 'canGenerate'));
     }
 
     public function generate(Request $request)
     {
         try {
+            // Check if user can generate posts
+            if (!$this->canPerformAction()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Insufficient credits. Please upgrade your subscription to generate more posts.'
+                ], 402);
+            }
+
             // Validate request
             $validated = $request->validate([
                 'post_type_id' => 'required|exists:post_types,id',
@@ -43,6 +58,16 @@ class PostGeneratorController extends Controller
                 'word_limit' => 'required|integer|min:50|max:300',
                 'prompt' => 'required|string'
             ]);
+
+            // Check and deduct credits before generating content
+            try {
+                $this->deductCredits(1, 'Generated post using ' . PostType::find($validated['post_type_id'])->name);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ], 402);
+            }
 
             // Get user preferences
             $userPreferences = UserPreference::where('user_id', auth()->id())->first();
@@ -225,6 +250,17 @@ class PostGeneratorController extends Controller
                 ], 429);
             }
 
+            // Check and deduct credits before regenerating content
+            try {
+                $this->deductCredits(1, 'Regenerated post #' . $post->id);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                    'can_regenerate' => false
+                ], 402); // 402 Payment Required
+            }
+
             // Generate new content using the same prompt
             $generatedContent = $this->geminiService->generateContent($post->prompt);
 
@@ -249,6 +285,7 @@ class PostGeneratorController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             return response()->json([
+                'success' => false,
                 'error' => 'An error occurred while regenerating the post',
                 'message' => $e->getMessage()
             ], 500);

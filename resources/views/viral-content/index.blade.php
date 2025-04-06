@@ -117,7 +117,7 @@ use Illuminate\Support\Facades\Auth;
                 <div class="mt-8">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($viralTemplates as $template)
-                            <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+                            <div id="template-{{ $template->id }}" class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
                                 <div class="p-6">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">
@@ -140,7 +140,7 @@ use Illuminate\Support\Facades\Auth;
                                         </div>
                                     </div>
 
-                                    <div class="mt-4">
+                                    <div class="mt-4 post-content">
                                         <p class="text-sm text-gray-500 whitespace-pre-wrap">{{ $template->post_content }}</p>
                                     </div>
 
@@ -180,9 +180,26 @@ use Illuminate\Support\Facades\Auth;
                                     </div>
 
                                     <div class="mt-6">
-                                        <a href="{{ route('viral-content.show', $template) }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                            Use Template
-                                        </a>
+                                        <div class="flex flex-col space-y-3">
+                                            <button onclick="copyToClipboard({{ $template->id }})" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                                                </svg>
+                                                Copy
+                                            </button>
+                                            <button onclick="shareOnLinkedIn({{ $template->id }})" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                                </svg>
+                                                Share on LinkedIn
+                                            </button>
+                                            <button class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-400 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white cursor-not-allowed" disabled>
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                                </svg>
+                                                User Template (Coming Soon)
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -217,6 +234,23 @@ function toggleBookmark(templateId) {
         }
     })
     .catch(error => console.error('Error:', error));
+}
+
+function copyToClipboard(templateId) {
+    const template = document.querySelector(`#template-${templateId}`);
+    const content = template.querySelector('.post-content').innerText;
+    navigator.clipboard.writeText(content).then(() => {
+        alert('Content copied to clipboard!');
+    }).catch(err => {
+        console.error('Failed to copy content: ', err);
+    });
+}
+
+function shareOnLinkedIn(templateId) {
+    const template = document.querySelector(`#template-${templateId}`);
+    const content = template.querySelector('.post-content').innerText;
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(content)}`;
+    window.open(linkedInUrl, '_blank');
 }
 </script>
 @endpush

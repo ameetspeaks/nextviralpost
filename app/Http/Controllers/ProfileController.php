@@ -30,7 +30,7 @@ class ProfileController extends BaseController
         return view('profile.edit', [
             'user' => $user,
             'roles' => Role::where('is_active', true)
-                          ->where('name', '!=', 'superadmin')
+                          ->whereNotIn('name', ['Admin', 'Super Admin'])
                           ->get(),
             'industries' => Industry::where('is_active', true)->get(),
             'interests' => Interest::where('is_active', true)->get(),
@@ -126,7 +126,7 @@ class ProfileController extends BaseController
         return view('profile.show', [
             'user' => $user,
             'roles' => Role::where('is_active', true)
-                          ->where('name', '!=', 'Super Admin')
+                          ->whereNotIn('name', ['Admin', 'Super Admin'])
                           ->get(),
             'industries' => Industry::where('is_active', true)->get(),
             'interests' => Interest::where('is_active', true)->get(),

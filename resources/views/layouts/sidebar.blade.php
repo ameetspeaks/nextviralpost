@@ -93,9 +93,9 @@ use Illuminate\Support\Facades\Auth;
                     <p class="text-sm font-medium text-gray-900 truncate">{{ Auth::user()->name }}</p>
                     <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
                 </div>
-                <form method="POST" action="{{ route('logout') }}" class="ml-2">
+                <form method="POST" action="{{ route('logout') }}" class="ml-2" id="logout-form">
                     @csrf
-                    <button type="submit" class="p-1.5 text-gray-400 hover:text-gray-500 rounded-lg hover:bg-gray-50">
+                    <button type="button" onclick="confirmLogout()" class="p-1.5 text-gray-400 hover:text-gray-500 rounded-lg hover:bg-gray-50">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                         </svg>
@@ -104,4 +104,14 @@ use Illuminate\Support\Facades\Auth;
             </div>
         </div>
     </div>
-</aside> 
+</aside>
+
+@push('scripts')
+<script>
+function confirmLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        document.getElementById('logout-form').submit();
+    }
+}
+</script>
+@endpush 

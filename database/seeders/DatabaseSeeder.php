@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             RoleSeeder::class,
+            SubscriptionSeeder::class,
             IndustrySeeder::class,
             PostTypeSeeder::class,
             PostToneSeeder::class,
