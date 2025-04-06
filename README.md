@@ -2,46 +2,90 @@
 
 NextViralPost is a sophisticated content generation platform built with Laravel, designed to help users create engaging and viral content for social media platforms. The platform leverages AI technology to assist in content creation and optimization.
 
-## Features
+## Core Features
 
-### User Management
-- **Authentication System**
-  - Secure registration and login
-  - Email verification
-  - Password reset functionality
+### User Management System
+- **Authentication & Authorization**
+  - Secure registration and login with email verification
   - Role-based access control (Admin, Super Admin, User roles)
-  - Profile management with customizable settings
+  - Social media integration (Facebook, Twitter, LinkedIn)
+  - Token management for social media platforms
+  - Profile completion tracking
+  - User preferences and settings
 
-### Content Generation
+### Subscription & Credit System
+- **Flexible Subscription Plans**
+  - Multiple subscription tiers
+  - Credit-based usage system
+  - Automatic renewal options
+  - Subscription status tracking
+  - Credit transaction history
+  - Remaining credit monitoring
+  - Usage tracking and analytics
+
+### Content Generation Engine
 - **AI-Powered Content Creation**
-  - Generate viral content ideas
-  - Create engaging social media posts
-  - Customizable content templates
+  - Viral content templates
+  - Customizable post types
+  - Tone selection for content
   - Industry-specific content suggestions
-  - Content optimization recommendations
+  - Content repurposing capabilities
+  - Template interaction tracking
+  - Bookmarking system
+  - Inspiration tracking
 
 ### Social Media Integration
-- **Platform Support**
+- **Multi-Platform Support**
   - LinkedIn integration
-  - Copy and share functionality
+  - Facebook integration
+  - Twitter integration
+  - Cross-platform content sharing
   - Social media analytics
-  - Post scheduling capabilities
+  - Engagement metrics tracking
+  - Post performance monitoring
 
-### User Experience
-- **Intuitive Interface**
-  - Modern, responsive design
-  - User-friendly dashboard
-  - Customizable user templates
-  - Real-time content preview
-  - Interactive content editing
+### Content Management
+- **Advanced Content Tools**
+  - Post generation with AI assistance
+  - Content repurposing
+  - Template management
+  - Bookmarking system
+  - Content inspiration tracking
+  - User interaction analytics
+  - Content performance metrics
 
-### Security Features
-- **Advanced Security**
-  - Role-based permissions
-  - Secure authentication
-  - Data encryption
-  - Session management
-  - Protected API endpoints
+### Analytics & Insights
+- **Performance Tracking**
+  - Engagement metrics (likes, comments, shares)
+  - Content performance analytics
+  - User interaction tracking
+  - Template effectiveness metrics
+  - Repurposing success rates
+  - Industry-specific analytics
+
+## Technical Stack
+
+### Backend
+- Laravel PHP Framework
+- MySQL/MariaDB Database
+- Redis for caching
+- Firebase Integration
+- RESTful API Architecture
+
+### Frontend
+- Modern Responsive Design
+- Tailwind CSS
+- JavaScript/Node.js
+- Real-time Updates
+- Interactive UI Components
+
+### Security
+- Role-based Access Control
+- Secure Authentication
+- Data Encryption
+- API Security
+- Session Management
+- Social Media Token Security
 
 ## Installation
 
@@ -68,9 +112,11 @@ php artisan migrate
 php artisan db:seed
 ```
 
-5. Configure Mailgun for email verification:
-- Add your Mailgun credentials to `.env` file
-- Set up domain verification
+5. Configure required services:
+- Add Mailgun credentials to `.env`
+- Configure Firebase credentials
+- Set up social media API keys
+- Configure payment gateway
 
 ## Configuration
 
@@ -80,18 +126,43 @@ php artisan db:seed
 - `MAILGUN_ENDPOINT`: Mailgun API endpoint
 - `MAIL_FROM_ADDRESS`: Sender email address
 - `MAIL_FROM_NAME`: Sender name
+- `FIREBASE_CREDENTIALS`: Firebase service account JSON
+- `SOCIAL_MEDIA_KEYS`: API keys for social platforms
+- `PAYMENT_GATEWAY`: Payment processor configuration
 
-### Database
-- MySQL/MariaDB
-- Redis (for caching and queues)
+### Database Configuration
+- MySQL/MariaDB for primary data storage
+- Redis for caching and queues
+- Optimized indexes for performance
+- Regular backup schedule
 
-## Usage
+## Usage Guide
 
-1. Register a new account
-2. Complete email verification
-3. Access the dashboard
-4. Generate content using AI tools
-5. Customize and share content
+1. **User Registration**
+   - Create account
+   - Complete email verification
+   - Set up profile preferences
+   - Connect social media accounts
+
+2. **Subscription Management**
+   - Choose subscription plan
+   - Set up payment method
+   - Monitor credit usage
+   - Manage subscription settings
+
+3. **Content Creation**
+   - Select content type
+   - Choose industry focus
+   - Pick content tone
+   - Generate AI-assisted content
+   - Customize and edit
+   - Schedule or publish
+
+4. **Analytics & Optimization**
+   - Track content performance
+   - Monitor engagement metrics
+   - Analyze user interactions
+   - Optimize content strategy
 
 ## Contributing
 
@@ -114,4 +185,5 @@ For support, email support@nextviralpost.com or create an issue in the repositor
 - Laravel Framework
 - OpenAI API
 - Mailgun
+- Firebase
 - All contributors and maintainers
