@@ -14,8 +14,6 @@ use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\RepurposedContentController;
 use App\Http\Controllers\TrendingTopicController;
 use App\Http\Controllers\SubscriptionController;
-use App\Http\Controllers\Admin\SubscriptionPlanController;
-use App\Http\Controllers\Admin\AdminDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -124,9 +122,4 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/viral-content/search', [ViralContentController::class, 'searchTemplates'])->name('viral-content.search');
     Route::post('/viral-content/generate-ideas', [ViralContentController::class, 'generateContentIdeas'])->name('viral-content.generate-ideas');
     Route::get('/viral-content/analytics', [ViralContentController::class, 'getAnalytics'])->name('viral-content.analytics');
-});
-
-Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard-sa', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('subscription-plans', SubscriptionPlanController::class);
 });

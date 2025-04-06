@@ -19,8 +19,8 @@ class UserPreferenceSeeder extends Seeder
         $regularUser = User::where('is_superadmin', false)->first();
 
         // Get roles
-        $adminRole = Role::where('slug', 'admin')->first();
-        $userRole = Role::where('slug', 'user')->first();
+        $adminRole = Role::where('name', 'CEO')->first();
+        $userRole = Role::where('name', 'Marketing Manager')->first();
 
         // Get a sample industry
         $industry = Industry::first();

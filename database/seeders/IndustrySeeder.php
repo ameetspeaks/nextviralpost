@@ -34,11 +34,14 @@ class IndustrySeeder extends Seeder
         ];
 
         foreach ($industries as $industry) {
-            Industry::create([
-                'name' => $industry['name'],
-                'is_active' => $industry['is_active'],
-                'slug' => Str::slug($industry['name'])
-            ]);
+            $slug = Str::slug($industry['name']);
+            if (!Industry::where('slug', $slug)->exists()) {
+                Industry::create([
+                    'name' => $industry['name'],
+                    'is_active' => $industry['is_active'],
+                    'slug' => $slug
+                ]);
+            }
         }
     }
 } 

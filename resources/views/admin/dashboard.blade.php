@@ -22,24 +22,6 @@
         </div>
     </div>
 
-    <!-- Subscription Plans Card -->
-    <div class="p-6 bg-white rounded-lg shadow-md">
-        <div class="flex items-center">
-            <div class="p-3 bg-purple-100 rounded-full">
-                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-            <div class="ml-4">
-                <h2 class="text-2xl font-semibold text-gray-700">{{ $subscriptionPlanCount ?? 0 }}</h2>
-                <p class="text-sm text-gray-500">Subscription Plans</p>
-            </div>
-        </div>
-        <div class="mt-4">
-            <a href="{{ route('admin.subscription-plans.index') }}" class="text-sm font-medium text-purple-600 hover:text-purple-900">Manage plans →</a>
-        </div>
-    </div>
-
     <!-- Post Types Card -->
     <div class="p-6 bg-white rounded-lg shadow-md">
         <div class="flex items-center">
@@ -136,43 +118,37 @@
         </div>
     </div>
 
-    <!-- Subscription Plans Table -->
+    <!-- Recent Users Card -->
     <div class="p-6 bg-white rounded-lg shadow-md">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-900">Subscription Plans</h3>
-            <a href="{{ route('admin.subscription-plans.create') }}" class="text-sm font-medium text-purple-600 hover:text-purple-900">Add new plan →</a>
+            <h3 class="text-lg font-medium text-gray-900">Recent Users</h3>
+            <a href="{{ route('admin.users.index') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-900">View all →</a>
         </div>
         <div class="overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Name</th>
-                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Price</th>
-                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Credits</th>
-                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Email</th>
+                        <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Joined</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($recentPlans ?? [] as $plan)
+                    @forelse($recentUsers ?? [] as $user)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ $plan->name }}</div>
+                            <div class="text-sm font-medium text-gray-900">{{ $user->full_name }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500">{{ $plan->formatted_price }}</div>
+                            <div class="text-sm text-gray-500">{{ $user->email }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-500">{{ $plan->credits_per_month }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $plan->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                {{ $plan->is_active ? 'Active' : 'Inactive' }}
-                            </span>
+                            <div class="text-sm text-gray-500">{{ $user->created_at->format('M d, Y') }}</div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-6 py-4 text-sm text-center text-gray-500">No subscription plans found</td>
+                        <td colspan="3" class="px-6 py-4 text-sm text-center text-gray-500">No users found</td>
                     </tr>
                     @endforelse
                 </tbody>

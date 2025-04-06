@@ -459,21 +459,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         const bookmarkResult = await response.json();
                         if (bookmarkResult.success) {
                             const svg = bookmarkButton.querySelector('svg');
-                            if (bookmarkResult.is_bookmarked) {
-                                svg.classList.remove('text-gray-400');
-                                svg.classList.add('text-yellow-500', 'fill-current');
-                            } else {
-                                svg.classList.remove('text-yellow-500', 'fill-current');
-                                svg.classList.add('text-gray-400');
-                            }
-
-                            // Optional: Show feedback message
-                            const message = bookmarkResult.is_bookmarked ? 'Post bookmarked!' : 'Bookmark removed';
-                            const alertDiv = document.createElement('div');
-                            alertDiv.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg text-sm';
-                            alertDiv.textContent = message;
-                            document.body.appendChild(alertDiv);
-                            setTimeout(() => alertDiv.remove(), 2000);
+                            svg.classList.toggle('text-indigo-600');
+                            svg.classList.toggle('fill-current');
                         }
                     } catch (error) {
                         console.error('Error bookmarking post:', error);
