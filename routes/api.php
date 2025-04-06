@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Firebase Authentication Routes
 Route::prefix('auth/firebase')->group(function () {
-    Route::post('login', [App\Http\Controllers\Auth\FirebaseAuthController::class, 'login']);
-    Route::post('register', [App\Http\Controllers\Auth\FirebaseAuthController::class, 'register']);
-    Route::post('logout', [App\Http\Controllers\Auth\FirebaseAuthController::class, 'logout'])->middleware('auth');
+    Route::post('login', [App\Http\Controllers\Auth\AuthController::class, 'login']);
+    Route::post('register', [App\Http\Controllers\Auth\AuthController::class, 'register']);
+    Route::post('logout', [App\Http\Controllers\Auth\AuthController::class, 'logout'])->middleware('auth');
 }); 
