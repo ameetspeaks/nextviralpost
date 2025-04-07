@@ -55,19 +55,8 @@ class PostGeneratorController extends Controller
                 'tone_id' => 'required|exists:post_tones,id',
                 'keywords' => 'required|string|max:255',
                 'raw_content' => 'required|string',
-                'word_limit' => 'required|integer|min:50|max:300',
-                'prompt' => 'required|string'
+                'word_limit' => 'required|integer|min:50|max:300'
             ]);
-
-            // Check and deduct credits before generating content
-            try {
-                $this->deductCredits(1, 'Generated post using ' . PostType::find($validated['post_type_id'])->name);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'success' => false,
-                    'error' => $e->getMessage()
-                ], 402);
-            }
 
             // Get user preferences
             $userPreferences = UserPreference::where('user_id', auth()->id())->first();
@@ -91,44 +80,46 @@ class PostGeneratorController extends Controller
                 ], 404);
             }
 
-            // Get post type and tone names for the prompt
+            // Get post type and tone names
             $postType = PostType::find($validated['post_type_id']);
             $tone = PostTone::find($validated['tone_id']);
 
-            // Replace placeholders in the prompt
-            $processedPrompt = $validated['prompt']; // This prompt already has industry and role replaced
-            $processedPrompt = str_replace('{keywords}', $validated['keywords'], $processedPrompt);
-            $processedPrompt = str_replace('{raw_content}', $validated['raw_content'], $processedPrompt);
-            $processedPrompt = str_replace('{word_limit}', $validated['word_limit'], $processedPrompt);
+            // Prepare user data for prompt generation
+            $userData = [
+                'raw_content' => $validated['raw_content'],
+                'keywords' => $validated['keywords'],
+                'word_limit' => $validated['word_limit'],
+                'industry' => $userPreferences->industry ? $userPreferences->industry->name : 'Not specified',
+                'role' => $userPreferences->role ? $userPreferences->role->name : 'Not specified',
+                'post_type' => $postType->name,
+                'tone' => $tone->name
+            ];
 
-            Log::info('Processed prompt', [
-                'original_prompt' => $template->content,
-                'processed_prompt' => $processedPrompt,
-                'user_data' => [
-                    'keywords' => $validated['keywords'],
-                    'raw_content' => $validated['raw_content'],
-                    'word_limit' => $validated['word_limit'],
-                    'industry' => $userPreferences->industry ?? 'Not specified',
-                    'role' => $userPreferences->role ?? 'Not specified'
-                ]
-            ]);
+            // Generate the prompt with all placeholders replaced
+            $processedPrompt = $template->generatePrompt($userData);
 
+            // Check and deduct credits before generating content
             try {
-                // Generate content using Gemini
-                Log::info('Calling Gemini API');
+                $this->deductCredits(1, 'Generated post using ' . $postType->name);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ], 402);
+            }
+
+            // Generate content using the processed prompt
+            try {
                 $generatedContent = $this->geminiService->generateContent($processedPrompt);
-                Log::info('Received content from Gemini API', [
-                    'content_length' => strlen($generatedContent)
-                ]);
             } catch (\Exception $e) {
                 Log::error('Failed to generate content from Gemini API', [
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'prompt' => $processedPrompt
                 ]);
                 throw new \Exception('Failed to generate content: ' . $e->getMessage());
             }
 
-            // Create the post with explicit prompt assignment
+            // Create the post with the processed prompt and generated content
             $post = new Post([
                 'user_id' => auth()->id(),
                 'post_type_id' => $validated['post_type_id'],
@@ -141,12 +132,12 @@ class PostGeneratorController extends Controller
                 'regeneration_attempts' => 0
             ]);
 
-            // Save the post and log the result
             $post->save();
+
             Log::info('Post created successfully', [
                 'post_id' => $post->id,
-                'prompt' => $post->prompt,
-                'content_length' => strlen($post->generated_content)
+                'prompt' => $processedPrompt,
+                'content_length' => strlen($generatedContent)
             ]);
 
             return response()->json([
@@ -322,8 +313,8 @@ class PostGeneratorController extends Controller
             }
 
             // Get industry and role names from user preferences
-            $industry = $userPreferences->industry ?? 'Not specified';
-            $role = $userPreferences->role ?? 'Not specified';
+            $industry = $userPreferences->industry ? $userPreferences->industry->name : 'Not specified';
+            $role = $userPreferences->role ? $userPreferences->role->name : 'Not specified';
 
             // Replace industry and role placeholders in the template
             $processedTemplate = $template->content;

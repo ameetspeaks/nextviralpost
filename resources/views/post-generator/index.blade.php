@@ -409,8 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 tone_id: toneSelect.value,
                 keywords: document.getElementById('keywords').value,
                 raw_content: document.getElementById('raw_content').value,
-                word_limit: wordLimitInput.value,
-                prompt: currentTemplate.content
+                word_limit: wordLimitInput.value
             };
             
             // Send request to generate post

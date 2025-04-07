@@ -14,6 +14,7 @@ use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\RepurposedContentController;
 use App\Http\Controllers\TrendingTopicController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\LinkedInProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -113,6 +114,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/repurposed-content/create/{viralTemplate}', [RepurposedContentController::class, 'create'])->name('repurposed-content.create');
     Route::post('/repurposed-content/{viralTemplate}', [RepurposedContentController::class, 'store'])->name('repurposed-content.store');
     Route::get('/repurposed-content/{repurposedContent}', [RepurposedContentController::class, 'show'])->name('repurposed-content.show');
+
+    // LinkedIn Profile Optimization
+    Route::get('/linkedin-profile', [LinkedInProfileController::class, 'index'])->name('linkedin-profile.index');
+    Route::post('/linkedin-profile', [LinkedInProfileController::class, 'store'])->name('linkedin-profile.store');
 });
 
 // Admin routes are now in routes/admin.php

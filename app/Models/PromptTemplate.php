@@ -48,63 +48,39 @@ class PromptTemplate extends Model
                     throw new \Exception("Missing required field: {$field}");
                 }
             }
-            
-            // Extract values from nested objects
-            $industry = is_object($userData['industry']) ? $userData['industry']->name : $userData['industry'];
-            $role = is_object($userData['role']) ? $userData['role']->name : $userData['role'];
-            
-            // Define all placeholders and their values
+
+            // Replace placeholders with actual values
             $replacements = [
-                '{{raw_content}}' => $userData['raw_content'],
-                '{{keywords}}' => $userData['keywords'],
-                '{{word_limit}}' => $userData['word_limit'],
-                '{{industry}}' => $industry,
-                '{{role}}' => $role,
-                '{{post_type}}' => $userData['post_type'],
-                '{{tone}}' => $userData['tone']
+                '{raw_content}' => $userData['raw_content'],
+                '{keywords}' => $userData['keywords'],
+                '{word_limit}' => $userData['word_limit'],
+                '{industry}' => $userData['industry'],
+                '{role}' => $userData['role'],
+                '{post_type}' => $userData['post_type'],
+                '{tone}' => $userData['tone']
             ];
 
-            // Replace all placeholders in the template
-            $prompt = str_replace(
+            $processedPrompt = str_replace(
                 array_keys($replacements),
                 array_values($replacements),
                 $template
             );
 
-            // Verify all placeholders were replaced
-            $unreplacedPlaceholders = [];
-            foreach ($replacements as $placeholder => $value) {
-                if (strpos($prompt, $placeholder) !== false) {
-                    $unreplacedPlaceholders[] = $placeholder;
-                }
-            }
-
-            if (!empty($unreplacedPlaceholders)) {
-                throw new \Exception("Failed to replace placeholders: " . implode(', ', $unreplacedPlaceholders));
-            }
-
-            // Clean up any double spaces or empty lines
-            $prompt = preg_replace('/\s+/', ' ', $prompt);
-            $prompt = trim($prompt);
-
-            // Log the generated prompt for debugging
-            Log::debug('Generated prompt', [
+            Log::info('Generated prompt', [
                 'template_id' => $this->id,
                 'original_template' => $template,
-                'generated_prompt' => $prompt,
+                'processed_prompt' => $processedPrompt,
                 'user_data' => $userData
             ]);
 
-            return $prompt;
-
+            return $processedPrompt;
         } catch (\Exception $e) {
             Log::error('Error generating prompt', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
                 'template_id' => $this->id,
+                'error' => $e->getMessage(),
                 'user_data' => $userData
             ]);
-            throw new \Exception('Error generating prompt: ' . $e->getMessage());
+            throw $e;
         }
     }
 } 
