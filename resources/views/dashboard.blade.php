@@ -29,6 +29,22 @@ use Illuminate\Support\Facades\Auth;
 
                 <!-- Stats Overview -->
                 <div class="grid grid-cols-4 gap-6 mt-8">
+                    <!-- Subscription Info -->
+                    <div class="bg-white rounded-lg p-6 border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-lg bg-yellow-50">
+                                <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">Current Plan</h3>
+                                <p class="text-lg font-semibold text-gray-900">{{ $subscriptionName }}</p>
+                                <p class="text-sm text-gray-500">Remaining Credits: {{ $remainingCredits }}</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Total Posts -->
                     <div class="bg-white rounded-lg p-6 border border-gray-200">
                         <div class="flex items-center">

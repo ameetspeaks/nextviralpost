@@ -83,15 +83,41 @@ use Illuminate\Support\Facades\Auth;
     <!-- User Profile Section -->
     <div class="absolute bottom-0 left-0 right-0 border-t bg-white">
         <div class="px-4 py-4">
-            <div class="flex items-center">
+            <div class="flex items-center gap-3">
                 <div class="flex-shrink-0">
-                    <div class="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center">
-                        <span class="text-indigo-600 font-medium text-sm">{{ substr(Auth::user()->name, 0, 1) }}</span>
-                    </div>
+                    <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=random" alt="{{ auth()->user()->name }}">
                 </div>
-                <div class="ml-3 min-w-0 flex-1">
-                    <p class="text-sm font-medium text-gray-900 truncate">{{ Auth::user()->name }}</p>
-                    <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</p>
+                    @if(auth()->user()->hasActiveSubscription())
+                        <div class="mt-2 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <svg class="h-4 w-4 mr-2 {{ (auth()->user()->activeSubscription->subscription->name === 'Agency Plan') ? 'text-purple-600' : ((auth()->user()->activeSubscription->subscription->name === 'Creator Plan') ? 'text-blue-600' : 'text-green-600') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                                </svg>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                                    {{ auth()->user()->activeSubscription->subscription->name }}
+                                </span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-4 w-4 text-indigo-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold {{ (auth()->user()->activeSubscription->remaining_credits > 10) ? 'text-green-600' : ((auth()->user()->activeSubscription->remaining_credits > 5) ? 'text-yellow-600' : 'text-red-600') }}">
+                                        {{ auth()->user()->activeSubscription->remaining_credits }}
+                                    </span>
+                                    <span class="text-xs text-gray-500">credits</span>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <a href="{{ route('subscription.select') }}" class="mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200">
+                            Subscribe Now
+                        </a>
+                    @endif
+                </div>
                 </div>
                 <form method="POST" action="{{ route('logout') }}" class="ml-2" id="logout-form">
                     @csrf
@@ -101,7 +127,6 @@ use Illuminate\Support\Facades\Auth;
                         </svg>
                     </button>
                 </form>
-            </div>
         </div>
     </div>
 </aside>

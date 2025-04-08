@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             PostSeeder::class,
             ViralTemplateSeeder::class,
             LinkedInProfileSeeder::class,
+            AdminUserSeeder::class,
         ]);
     }
 }

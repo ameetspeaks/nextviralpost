@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\Subscription;
 use Illuminate\Database\Seeder;
+use App\Models\Subscription;
 
 class SubscriptionSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
         $plans = [
             [
@@ -17,27 +17,27 @@ class SubscriptionSeeder extends Seeder
                 'credits' => 10,
                 'price' => 0,
                 'billing_cycle' => 'one-time',
-                'discount_percentage' => null,
+                'discount_percentage' => 0,
                 'is_active' => true,
             ],
             [
                 'name' => 'Creator Plan',
-                'plan_type' => 'creator',
+                'plan_type' => 'paid',
                 'duration' => 30,
-                'credits' => 50,
-                'price' => 5,
+                'credits' => 200,
+                'price' => 29.99,
                 'billing_cycle' => 'monthly',
-                'discount_percentage' => 50,
+                'discount_percentage' => 0,
                 'is_active' => true,
             ],
             [
                 'name' => 'Agency Plan',
-                'plan_type' => 'agency',
+                'plan_type' => 'paid',
                 'duration' => 30,
-                'credits' => 150,
-                'price' => 19,
+                'credits' => 1000,
+                'price' => 99.99,
                 'billing_cycle' => 'monthly',
-                'discount_percentage' => 50,
+                'discount_percentage' => 0,
                 'is_active' => true,
             ],
         ];

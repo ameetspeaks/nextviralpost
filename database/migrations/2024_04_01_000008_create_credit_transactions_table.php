@@ -11,10 +11,9 @@ return new class extends Migration
         Schema::create('credit_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_subscription_id')->constrained('user_subscriptions')->onDelete('cascade');
+            $table->foreignId('user_subscription_id')->constrained()->onDelete('cascade');
             $table->integer('amount');
-            $table->integer('balance');
-            $table->string('type');
+            $table->string('type')->default('debit'); // debit or credit
             $table->string('description');
             $table->foreignId('post_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();

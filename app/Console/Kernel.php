@@ -9,6 +9,9 @@ class Kernel extends ConsoleKernel
 {
     protected $commands = [
         Commands\DownloadCACert::class,
+        Commands\CheckSubscriptionExpiry::class,
+        Commands\AssignAdminPlan::class,
+        Commands\TestCreditDeduction::class,
     ];
 
     /**
@@ -21,6 +24,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('subscriptions:check-expired')
             ->daily()
             ->at('00:00');
+
+        // Check subscription expiry daily
+        $schedule->command('subscriptions:check-expiry')->daily();
     }
 
     /**

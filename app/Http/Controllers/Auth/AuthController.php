@@ -12,9 +12,18 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Auth\Events\Registered;
+use App\Models\Subscription;
+use App\Services\SubscriptionService;
 
 class AuthController extends Controller
 {
+    protected $subscriptionService;
+
+    public function __construct(SubscriptionService $subscriptionService)
+    {
+        $this->subscriptionService = $subscriptionService;
+    }
+
     /**
      * Show the registration form.
      *
@@ -34,9 +43,9 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
@@ -45,11 +54,14 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Assign trial subscription
+        $user->assignTrialSubscription();
+
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect()->route('onboarding');
+        return redirect()->route('dashboard');
     }
 
     /**

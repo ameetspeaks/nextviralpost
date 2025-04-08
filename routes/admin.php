@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ViralTemplateController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SubscriptionPlanController;
 
 Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
@@ -21,6 +22,9 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
     Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::post('users/{user}/preferences', [UserController::class, 'storePreferences'])->name('users.preferences.store');
     Route::put('users/{user}/preferences', [UserController::class, 'updatePreferences'])->name('users.preferences.update');
+    Route::put('users/{user}/basic', [UserController::class, 'updateBasic'])->name('users.update.basic');
+    Route::put('users/{user}/subscription', [UserController::class, 'updateSubscription'])->name('users.update.subscription');
+    Route::put('users/{user}/admin', [UserController::class, 'updateAdmin'])->name('users.update.admin');
     
     // Post Types Management
     Route::resource('post-types', PostTypeController::class);
@@ -53,6 +57,10 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
         'viral-templates' => 'viral_template'
     ]);
     Route::post('viral-templates/{viral_template}/toggle-status', [ViralTemplateController::class, 'toggleStatus'])->name('viral-templates.toggle-status');
+    
+    // Subscription Plans Management
+    Route::resource('subscription-plans', SubscriptionPlanController::class);
+    Route::post('subscription-plans/{subscription}/toggle-status', [SubscriptionPlanController::class, 'toggleStatus'])->name('subscription-plans.toggle-status');
     
     // Settings
     Route::get('settings', [SettingController::class, 'index'])->name('settings.index');

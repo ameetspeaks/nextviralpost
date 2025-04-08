@@ -16,10 +16,10 @@
                     
                     <!-- Upload Section -->
                     <div id="uploadSection" class="mb-8">
-                        <form id="uploadForm" class="space-y-4">
+                        <form id="uploadForm" class="space-y-4" enctype="multipart/form-data">
                             @csrf
                             <div class="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors duration-300 bg-blue-50">
-                                <input type="file" id="pdfFile" name="pdf" accept=".pdf" class="hidden">
+                                <input type="file" id="pdfFile" name="pdf_file" accept=".pdf" class="hidden">
                                 <label for="pdfFile" class="cursor-pointer block">
                                     <div class="mx-auto w-20 h-20 mb-4 bg-blue-100 rounded-full flex items-center justify-center">
                                         <svg class="h-10 w-10 text-blue-500" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -28,7 +28,7 @@
                                     </div>
                                     <p class="text-lg font-medium text-gray-700 mb-2">Click to upload your LinkedIn profile PDF</p>
                                     <p class="text-sm text-gray-500">Drag and drop your file here or click to browse</p>
-                                    <p class="mt-2 text-xs text-blue-600 font-semibold">MAX. FILE SIZE: 100KB</p>
+                                    <p class="mt-2 text-xs text-blue-600 font-semibold">MAX. FILE SIZE: 10MB</p>
                                 </label>
                             </div>
 
@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadPercentage = document.getElementById('uploadPercentage');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const resultsSection = document.getElementById('resultsSection');
+    const errorDiv = document.getElementById('error-message');
 
     // Handle drag and drop
     const dropZone = document.querySelector('.border-dashed');
@@ -187,8 +188,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleFileSelect(file) {
         if (file) {
-            if (file.size > 100 * 1024) { // 100KB
-                alert('File size must be less than 100KB');
+            if (file.size > 10 * 1024 * 1024) { // 10MB
+                showError('File size must be less than 10MB');
+                fileInput.value = '';
+                updateButtonState(false);
+            } else if (file.type !== 'application/pdf') {
+                showError('Please upload a PDF file');
                 fileInput.value = '';
                 updateButtonState(false);
             } else {
@@ -230,49 +235,65 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Handle form submission
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const file = fileInput.files[0];
-        if (!file) {
-            alert('Please select a PDF file');
+        // Validate file selection
+        if (!fileInput.files || !fileInput.files[0]) {
+            showError('Please select a PDF file');
             return;
         }
 
-        const formData = new FormData();
-        formData.append('pdf', file);
-        formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+        // Validate file type
+        const file = fileInput.files[0];
+        if (file.type !== 'application/pdf') {
+            showError('Please upload a PDF file');
+            return;
+        }
 
-        loadingSpinner.classList.remove('hidden');
-        resultsSection.classList.add('hidden');
-        updateButtonState(false);
+        // Validate file size (10MB max)
+        if (file.size > 10 * 1024 * 1024) {
+            showError('File size must be less than 10MB');
+            return;
+        }
 
-        fetch('{{ route("linkedin-profile.store") }}', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            loadingSpinner.classList.add('hidden');
-            if (data.success) {
-                displayResults(data.profile);
-                resultsSection.classList.remove('hidden');
-                // Smooth scroll to results
-                resultsSection.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                alert(data.message || 'Error analyzing profile');
+        try {
+            // Show loading state
+            analyzeButton.disabled = true;
+            analyzeButton.innerHTML = 'Analyzing...';
+            hideError();
+            resultsSection.innerHTML = '<div class="text-center"><div class="spinner"></div><p>Analyzing your profile...</p></div>';
+
+            const formData = new FormData(form);
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            form.reset();
-            uploadProgress.classList.add('hidden');
-            updateButtonState(false);
-        })
-        .catch(error => {
-            loadingSpinner.classList.add('hidden');
-            alert('Error uploading file: ' + error.message);
-            form.reset();
-            uploadProgress.classList.add('hidden');
-            updateButtonState(false);
-        });
+
+            const data = await response.json();
+            console.log('Server response:', data); // Debug log
+
+            if (!data.success) {
+                throw new Error(data.message || 'Unknown error occurred');
+            }
+
+            displayResults(data.data);
+
+        } catch (error) {
+            console.error('Error:', error);
+            showError(error.message || 'An error occurred while analyzing the profile');
+        } finally {
+            analyzeButton.disabled = false;
+            analyzeButton.innerHTML = 'Analyze Profile';
+        }
     });
 
     // Add new analysis button functionality
@@ -284,135 +305,136 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function displayResults(profile) {
-        // Hide upload section
-        document.getElementById('uploadSection').classList.add('hidden');
-        
-        // Debug log to check received data
-        console.log('Received profile data:', profile);
-        
-        // Update overall score with animation
-        const scoreCircle = document.getElementById('scoreCircle');
-        const score = parseInt(profile.overall_score) || 0;
-        console.log('Processing score:', score);
-        
-        // Update the score display immediately
-        document.querySelector('#scoreCircle + text').textContent = score;
-        
-        const circumference = 2 * Math.PI * 15.9155;
-        const offset = circumference - (score / 100) * circumference;
-        scoreCircle.style.strokeDasharray = `${circumference} ${circumference}`;
-        
-        requestAnimationFrame(() => {
-            scoreCircle.style.strokeDashoffset = offset;
-        });
+        if (!profile || typeof profile !== 'object') {
+            throw new Error('Invalid response data');
+        }
 
-        // Update section scores
-        const sectionScoresContainer = document.getElementById('sectionScores');
-        sectionScoresContainer.innerHTML = '';
-        
-        Object.entries(profile.sections).forEach(([section, data], index) => {
-            const sectionDiv = document.createElement('div');
-            sectionDiv.className = 'space-y-2 opacity-0';
-            sectionDiv.style.animation = `fadeIn 0.5s ease-out ${index * 0.1}s forwards`;
-            
-            const weightPercentage = Math.round(data.weight * 100);
-            const sectionScore = data.score;
-            
-            sectionDiv.innerHTML = `
-                <div class="flex justify-between items-center">
-                    <div>
-                        <span class="text-gray-700 font-medium">${section.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
-                        <span class="text-gray-400 text-sm ml-2">${weightPercentage}% weight</span>
-                    </div>
-                    <span class="text-blue-600 font-bold">${sectionScore}%</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
-                </div>
-            `;
-            
-            sectionScoresContainer.appendChild(sectionDiv);
-            setTimeout(() => {
-                sectionDiv.querySelector('.bg-blue-600').style.width = `${sectionScore}%`;
-            }, (index * 100) + 200);
-        });
+        console.log('Displaying results for:', profile); // Debug log
 
-        // Update improvement suggestions
-        const suggestionsContainer = document.getElementById('improvementSuggestions');
-        suggestionsContainer.innerHTML = '';
+        let html = '<div class="space-y-6">';
         
-        profile.improvement_suggestions.forEach((section, index) => {
-            const sectionDiv = document.createElement('div');
-            sectionDiv.className = 'space-y-4 opacity-0';
-            sectionDiv.style.animation = `fadeIn 0.5s ease-out ${index * 0.1}s forwards`;
-            
-            const suggestions = section.suggestions
-                .sort((a, b) => {
-                    const priority = { 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
-                    return priority[b.priority] - priority[a.priority];
-                })
-                .map(suggestion => `
-                    <div class="flex items-start space-x-3 text-sm">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            suggestion.priority === 'HIGH' ? 'bg-red-100 text-red-800' :
-                            suggestion.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-green-100 text-green-800'
-                        }">
-                            ${suggestion.priority}
-                        </span>
-                        <div class="flex-1">
-                            <p class="text-gray-700">${suggestion.message}</p>
-                            <p class="text-gray-500 text-xs mt-1">${suggestion.impact}</p>
+        // Overall Score
+        if (typeof profile.overall_score === 'number') {
+            html += `
+                <div class="bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Overall Profile Score</h2>
+                    <div class="flex items-center justify-center">
+                        <div class="relative w-40 h-40">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#E5E7EB" stroke-width="3"/>
+                                <path id="scoreCircle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#3B82F6" stroke-width="3" stroke-dasharray="0, 100" class="transition-all duration-1000 ease-out"/>
+                                <text x="18" y="20.35" class="text-3xl font-bold" text-anchor="middle" fill="#1F2937">${profile.overall_score}</text>
+                            </svg>
                         </div>
                     </div>
-                `).join('');
-
-            sectionDiv.innerHTML = `
-                <div class="border-b pb-2 mb-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-semibold text-gray-900">${section.section}</h3>
-                        <span class="text-sm font-medium ${
-                            section.score >= 80 ? 'text-green-600' :
-                            section.score >= 60 ? 'text-yellow-600' :
-                            'text-red-600'
-                        }">${section.score}%</span>
-                    </div>
-                </div>
-                <div class="space-y-3">
-                    ${suggestions}
                 </div>
             `;
-            
-            suggestionsContainer.appendChild(sectionDiv);
-        });
+        }
 
-        // Show the results section
-        document.getElementById('resultsSection').classList.remove('hidden');
+        // Section Scores
+        if (profile.section_scores && typeof profile.section_scores === 'object') {
+            html += `
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold mb-6 text-gray-800 border-b pb-2">Section Scores</h2>
+                    <div class="space-y-6" id="sectionScores">
+            `;
+
+            Object.entries(profile.section_scores).forEach(([section, score]) => {
+                if (score !== null && score !== undefined) {
+                    html += `
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-gray-700 font-medium">${section.charAt(0).toUpperCase() + section.slice(1)}</span>
+                                <span class="text-gray-400 text-sm ml-2">${Math.round(score * 100)}%</span>
+                            </div>
+                            <span class="text-blue-600 font-bold">${Math.round(score * 100)}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-1000 ease-out" style="width: ${score * 100}%"></div>
+                        </div>
+                    `;
+                }
+            });
+
+            html += '</div></div>';
+        }
+
+        // Improvement Suggestions
+        if (profile.improvement_suggestions && typeof profile.improvement_suggestions === 'object') {
+            html += `
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold mb-6 text-gray-800 border-b pb-2">Priority Improvements</h2>
+                    <div class="space-y-6" id="improvementSuggestions">
+            `;
+
+            profile.improvement_suggestions.forEach((section, index) => {
+                html += `
+                    <div class="flex items-start space-x-3 text-sm">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            section.priority === 'HIGH' ? 'bg-red-100 text-red-800' :
+                            section.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-green-100 text-green-800'
+                        }">
+                            ${section.priority}
+                        </span>
+                        <div class="flex-1">
+                            <p class="text-gray-700">${section.message}</p>
+                            <p class="text-gray-500 text-xs mt-1">${section.impact}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div></div>';
+        }
+
+        // Detailed Section Analysis
+        if (profile.section_details && typeof profile.section_details === 'object') {
+            html += '<div id="sectionDetails" class="space-y-6">';
+            Object.entries(profile.section_details).forEach(([section, details]) => {
+                html += `
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h2 class="text-xl font-bold mb-6 text-gray-800 border-b pb-2">${section.charAt(0).toUpperCase() + section.slice(1)}</h2>
+                        <p class="text-gray-700">${details}</p>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        }
+
+        // Competitor Analysis
+        if (profile.competitor_analysis && typeof profile.competitor_analysis === 'object') {
+            html += `
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold mb-6 text-gray-800 border-b pb-2">Competitor Analysis</h2>
+                    <div class="space-y-6" id="competitorAnalysis">
+            `;
+            Object.entries(profile.competitor_analysis).forEach(([industry, analysis]) => {
+                html += `
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="font-medium mb-2">${industry.charAt(0).toUpperCase() + industry.slice(1)}</h3>
+                        <p class="text-gray-700">${analysis}</p>
+                    </div>
+                `;
+            });
+            html += '</div></div>';
+        }
+
+        html += '</div>';
+        resultsSection.innerHTML = html;
+        resultsSection.classList.remove('hidden');
         resultsSection.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Add this function to test the score display
-    window.testScore = function(testScore) {
-        displayResults({
-            overall_score: testScore,
-            sections: {
-                'profile_completeness': { score: testScore, weight: 0.3 },
-                'headline_impact': { score: testScore, weight: 0.3 },
-                'summary_effectiveness': { score: testScore, weight: 0.4 }
-            },
-            improvement_suggestions: [{
-                section: 'Test Section',
-                suggestions: ['Test suggestion 1', 'Test suggestion 2'],
-                priority: 'HIGH',
-                message: 'This is a test suggestion',
-                impact: 'Improves overall score'
-            }],
-            competitor_analysis: {
-                'Industry Comparison': 'Test analysis'
-            }
-        });
-        document.getElementById('resultsSection').classList.remove('hidden');
-    };
+    function showError(message) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+
+    function hideError() {
+        errorDiv.textContent = '';
+        errorDiv.classList.add('hidden');
+    }
 });
 
 // Add animation keyframes
@@ -425,4 +447,22 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 </script>
+
+<style>
+    .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
 @endsection 

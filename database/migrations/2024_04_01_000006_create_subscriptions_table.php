@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -12,11 +13,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('plan_type');
-            $table->integer('duration');
+            $table->integer('duration')->default(30); // in days
             $table->integer('credits');
             $table->decimal('price', 10, 2);
-            $table->string('billing_cycle');
-            $table->integer('discount_percentage')->nullable();
+            $table->string('billing_cycle')->default('monthly');
+            $table->integer('discount_percentage')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

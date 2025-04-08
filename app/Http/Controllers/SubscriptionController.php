@@ -8,12 +8,23 @@ use App\Models\CreditTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class SubscriptionController extends Controller
 {
     public function select()
     {
+        // Get all active subscriptions
         $subscriptions = Subscription::where('is_active', true)->get();
+        
+        // Log the subscriptions for debugging
+        Log::info('Subscriptions fetched:', ['count' => $subscriptions->count(), 'subscriptions' => $subscriptions->toArray()]);
+        
+        // Check if we have the expected number of subscriptions
+        if ($subscriptions->count() !== 3) {
+            Log::warning('Expected 3 subscriptions but found ' . $subscriptions->count());
+        }
+        
         return view('subscription.select', compact('subscriptions'));
     }
 

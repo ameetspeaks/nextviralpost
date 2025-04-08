@@ -20,10 +20,15 @@ class DashboardController extends BaseController
 
     public function index()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load(['userSubscriptions.subscription']);
         
         // Get total posts from posts table based on max ID that is not null
         $totalPosts = Post::whereNotNull('id')->count();
+        
+        // Get current subscription info
+        $currentSubscription = $user->userSubscriptions->first();
+        $subscriptionName = $currentSubscription ? $currentSubscription->subscription->name : 'No Active Plan';
+        $remainingCredits = $currentSubscription ? $currentSubscription->remaining_credits : 0;
         
         // Calculate engagement rate based on viral templates
         $viralTemplates = ViralTemplate::whereHas('interactions', function($query) use ($user) {
@@ -81,7 +86,9 @@ class DashboardController extends BaseController
             'recentPosts',
             'recentInteractions',
             'trendingTemplates',
-            'bookmarkedTemplates'
+            'bookmarkedTemplates',
+            'subscriptionName',
+            'remainingCredits'
         ));
     }
 } 

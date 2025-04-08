@@ -1,8 +1,4 @@
-@php
-use Illuminate\Support\Facades\Auth;
-$user = Auth::user();
-$subscription = $user->activeSubscription;
-@endphp
+@props(['activeSubscription', 'subscriptionName', 'remainingCredits', 'isExpired', 'hasSubscription'])
 
 <aside class="fixed inset-y-0 left-0 w-56 bg-white border-r border-gray-200 overflow-y-auto">
     <div class="flex flex-col h-full">
@@ -67,22 +63,44 @@ $subscription = $user->activeSubscription;
                 </a>
 
                 <!-- Subscription Plan with Credits -->
-                @if($subscription)
-                    <div class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50">
-                        <svg class="h-5 w-5 mr-3 {{ $subscription->subscription->name === 'Agency Plan' ? 'text-purple-600' : ($subscription->subscription->name === 'Creator Plan' ? 'text-blue-600' : 'text-green-600') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-                        </svg>
-                        <span class="text-gray-900">{{ $subscription->subscription->name }}</span>
-                        <div class="flex items-center ml-auto">
-                            <svg class="h-4 w-4 text-indigo-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span class="font-semibold {{ $subscription->remaining_credits > 10 ? 'text-green-600' : ($subscription->remaining_credits > 5 ? 'text-yellow-600' : 'text-red-600') }}">
-                                {{ $subscription->remaining_credits }}
-                            </span>
-                        </div>
+                <div class="flex items-center px-3 py-2.5 space-x-3">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                    <div class="flex-1">
+                        @if($hasSubscription)
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <svg class="h-4 w-4 mr-2 {{ ($subscriptionName === 'Agency Plan') ? 'text-purple-600' : (($subscriptionName === 'Creator Plan') ? 'text-blue-600' : 'text-green-600') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                                    </svg>
+                                    <span class="text-gray-900 font-medium">{{ $subscriptionName ?? 'No Plan' }}</span>
+                                </div>
+                                @if($isExpired)
+                                    <span class="text-red-600 text-xs font-medium">Expired</span>
+                                @endif
+                            </div>
+                            <div class="flex items-center mt-2">
+                                <svg class="h-5 w-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="flex flex-col">
+                                    <span class="text-base font-bold {{ ($remainingCredits > 10) ? 'text-green-600' : (($remainingCredits > 5) ? 'text-yellow-600' : 'text-red-600') }}">
+                                        {{ $remainingCredits ?? 0 }}
+                                    </span>
+                                    <span class="text-xs text-gray-500 font-medium">Credits Remaining</span>
+                                </div>
+                            </div>
+                        @else
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-900">No Active Plan</span>
+                                <a href="{{ route('subscription.select') }}" class="text-indigo-600 hover:text-indigo-700 text-xs font-medium">
+                                    Subscribe Now →
+                                </a>
+                            </div>
+                        @endif
                     </div>
-                @endif
+                </div>
 
                 <!-- Logout -->
                 <form method="POST" action="{{ route('logout') }}" id="logout-form-sidebar">

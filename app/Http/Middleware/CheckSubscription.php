@@ -8,6 +8,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckSubscription
 {
+    protected $excludedRoutes = [
+        'subscription.select',
+        'subscription.trial',
+        'subscription.purchase',
+        'subscription.manage',
+        'subscription.analytics',
+        'subscription.cancel',
+        'post-generator.index' // Add this to allow access to post generator without subscription
+    ];
+
     /**
      * Handle an incoming request.
      *
@@ -15,6 +25,11 @@ class CheckSubscription
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Skip subscription check for excluded routes
+        if (in_array($request->route()->getName(), $this->excludedRoutes)) {
+            return $next($request);
+        }
+
         $user = $request->user();
 
         if (!$user || !$user->activeSubscription) {

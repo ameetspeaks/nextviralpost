@@ -9,11 +9,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Traits\HasTrialSubscription;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, HasApiTokens, Notifiable;
+    use HasFactory, HasApiTokens, Notifiable, HasTrialSubscription;
 
     /**
      * The attributes that are mass assignable.
@@ -174,5 +175,14 @@ class User extends Authenticatable
             return $this->activeSubscription->useCredits($amount);
         }
         return false;
+    }
+
+    public function hasUsedFreeTrial()
+    {
+        return $this->userSubscriptions()
+            ->whereHas('subscription', function ($query) {
+                $query->where('plan_type', 'trial');
+            })
+            ->exists();
     }
 }

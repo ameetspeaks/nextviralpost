@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Industry;
 use App\Models\Role;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -19,7 +21,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::latest()->paginate(10);
+        $users = User::with(['userSubscriptions.subscription'])
+            ->latest()
+            ->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
@@ -30,7 +34,11 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        $subscriptions = Subscription::where('is_active', true)->get();
+        $industries = Industry::all();
+        $roles = Role::all();
+        
+        return view('admin.users.create', compact('subscriptions', 'industries', 'roles'));
     }
 
     /**
@@ -45,16 +53,52 @@ class UserController extends Controller
             'full_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'is_superadmin' => 'boolean',
+            'subscription_id' => 'nullable|exists:subscriptions,id',
+            'credits' => 'nullable|integer|min:0',
+            'industry_id' => 'nullable|exists:industries,id',
+            'role_id' => 'nullable|exists:roles,id',
+            'onboarding_completed' => 'boolean',
+            'is_superadmin' => 'boolean'
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
-        $validated['is_superadmin'] = $request->has('is_superadmin');
+        DB::beginTransaction();
+        try {
+            // Create user
+            $user = User::create([
+                'full_name' => $validated['full_name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'is_superadmin' => $validated['is_superadmin'] ?? false
+            ]);
 
-        User::create($validated);
+            // Create user preferences
+            if (isset($validated['industry_id']) || isset($validated['role_id'])) {
+                $user->preferences()->create([
+                    'industry_id' => $validated['industry_id'],
+                    'role_id' => $validated['role_id'],
+                    'onboarding_completed' => $validated['onboarding_completed'] ?? false
+                ]);
+            }
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User created successfully.');
+            // Create user subscription if selected
+            if (isset($validated['subscription_id'])) {
+                $subscription = Subscription::find($validated['subscription_id']);
+                $user->userSubscriptions()->create([
+                    'subscription_id' => $validated['subscription_id'],
+                    'status' => 'active',
+                    'start_date' => now(),
+                    'end_date' => now()->addDays($subscription->duration),
+                    'total_credits' => $validated['credits'] ?? $subscription->credits,
+                    'remaining_credits' => $validated['credits'] ?? $subscription->credits
+                ]);
+            }
+
+            DB::commit();
+            return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to create user: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -82,7 +126,11 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        return view('admin.users.edit', compact('user'));
+        $subscriptions = Subscription::where('is_active', true)->get();
+        $industries = Industry::all();
+        $roles = Role::all();
+        
+        return view('admin.users.edit', compact('user', 'subscriptions', 'industries', 'roles'));
     }
 
     /**
@@ -96,23 +144,63 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'is_superadmin' => 'boolean',
+            'subscription_id' => 'nullable|exists:subscriptions,id',
+            'credits' => 'nullable|integer|min:0',
+            'industry_id' => 'nullable|exists:industries,id',
+            'role_id' => 'nullable|exists:roles,id',
+            'onboarding_completed' => 'boolean',
+            'is_superadmin' => 'boolean'
         ]);
 
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
+        DB::beginTransaction();
+        try {
+            // Update user
+            $user->update([
+                'full_name' => $validated['full_name'],
+                'email' => $validated['email'],
+                'is_superadmin' => $validated['is_superadmin'] ?? false
+            ]);
+
+            if (!empty($validated['password'])) {
+                $user->update(['password' => Hash::make($validated['password'])]);
+            }
+
+            // Update or create user preferences
+            if (isset($validated['industry_id']) || isset($validated['role_id'])) {
+                $user->preferences()->updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'industry_id' => $validated['industry_id'],
+                        'role_id' => $validated['role_id'],
+                        'onboarding_completed' => $validated['onboarding_completed'] ?? false
+                    ]
+                );
+            }
+
+            // Update or create user subscription if selected
+            if (isset($validated['subscription_id'])) {
+                $subscription = Subscription::find($validated['subscription_id']);
+                $user->userSubscriptions()->updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'subscription_id' => $validated['subscription_id'],
+                        'status' => 'active',
+                        'start_date' => now(),
+                        'end_date' => now()->addDays($subscription->duration),
+                        'total_credits' => $validated['credits'] ?? $subscription->credits,
+                        'remaining_credits' => $validated['credits'] ?? $subscription->credits
+                    ]
+                );
+            }
+
+            DB::commit();
+            return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to update user: ' . $e->getMessage());
         }
-
-        $validated['is_superadmin'] = $request->has('is_superadmin');
-
-        $user->update($validated);
-
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User updated successfully.');
     }
 
     /**
@@ -165,15 +253,96 @@ class UserController extends Controller
         $validated = $request->validate([
             'industry_id' => 'nullable|exists:industries,id',
             'role_id' => 'nullable|exists:roles,id',
-            'onboarding_completed' => 'boolean',
+            'onboarding_completed' => 'boolean'
         ]);
 
-        $user->preference()->updateOrCreate(
-            ['user_id' => $user->id],
-            $validated
-        );
+        try {
+            $user->preferences()->updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'industry_id' => $validated['industry_id'],
+                    'role_id' => $validated['role_id'],
+                    'onboarding_completed' => $validated['onboarding_completed'] ?? false
+                ]
+            );
 
-        return redirect()->route('admin.users.show', $user)
-            ->with('success', 'User preferences updated successfully.');
+            return redirect()->route('admin.users.edit', $user)
+                ->with('success', 'User preferences updated successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to update preferences: ' . $e->getMessage());
+        }
+    }
+
+    public function updateBasic(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed'
+        ]);
+
+        try {
+            $user->update([
+                'full_name' => $validated['full_name'],
+                'email' => $validated['email']
+            ]);
+
+            if (!empty($validated['password'])) {
+                $user->update(['password' => Hash::make($validated['password'])]);
+            }
+
+            return redirect()->route('admin.users.edit', $user)->with('success', 'Basic information updated successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to update basic information: ' . $e->getMessage());
+        }
+    }
+
+    public function updateSubscription(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'subscription_id' => 'nullable|exists:subscriptions,id',
+            'credits' => 'nullable|integer|min:0'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            if (isset($validated['subscription_id'])) {
+                $subscription = Subscription::find($validated['subscription_id']);
+                $user->userSubscriptions()->updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'subscription_id' => $validated['subscription_id'],
+                        'status' => 'active',
+                        'start_date' => now(),
+                        'end_date' => now()->addDays($subscription->duration),
+                        'total_credits' => $validated['credits'] ?? $subscription->credits,
+                        'remaining_credits' => $validated['credits'] ?? $subscription->credits
+                    ]
+                );
+            }
+
+            DB::commit();
+            return redirect()->route('admin.users.edit', $user)->with('success', 'Subscription information updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to update subscription: ' . $e->getMessage());
+        }
+    }
+
+    public function updateAdmin(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'is_superadmin' => 'boolean'
+        ]);
+
+        try {
+            $user->update([
+                'is_superadmin' => $validated['is_superadmin'] ?? false
+            ]);
+
+            return redirect()->route('admin.users.edit', $user)->with('success', 'Admin status updated successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to update admin status: ' . $e->getMessage());
+        }
     }
 }

@@ -8,13 +8,12 @@ use Illuminate\Support\Str;
 
 class ProfileScoringService
 {
-    private const SECTION_WEIGHTS = [
-        'headline' => 0.15,
-        'summary' => 0.20,
-        'experience' => 0.25,
-        'skills' => 0.15,
-        'education' => 0.10,
-        'other_sections' => 0.15,
+    protected $sectionWeights = [
+        'headline' => 0.20,
+        'summary' => 0.25,
+        'experience' => 0.30,
+        'education' => 0.15,
+        'skills' => 0.10
     ];
 
     public function analyzeProfile(LinkedinProfile $profile): ProfileScore
@@ -53,169 +52,294 @@ class ProfileScoringService
         ]);
     }
 
-    private function scoreHeadline(string $headline): array
+    public function scoreProfile($sections)
     {
-        $score = 0;
-        $recommendations = [];
+        $scores = [];
+        $feedback = [];
+        $totalScore = 0;
 
-        // Length check (50-120 characters optimal)
-        $length = strlen($headline);
-        if ($length >= 50 && $length <= 120) {
-            $score += 30;
-        } elseif ($length < 50) {
-            $score += 10;
-            $recommendations[] = [
-                'priority' => 'high',
-                'message' => 'Your headline is too short. Aim for 50-120 characters to include more relevant keywords.',
-            ];
-        } else {
-            $score += 15;
-            $recommendations[] = [
-                'priority' => 'medium',
-                'message' => 'Your headline exceeds the optimal length. Consider making it more concise.',
-            ];
+        foreach ($sections as $section => $content) {
+            $method = 'score' . ucfirst($section);
+            if (method_exists($this, $method)) {
+                list($score, $sectionFeedback) = $this->$method($content);
+                $scores[$section] = $score;
+                $feedback[$section] = $sectionFeedback;
+                $totalScore += $score * $this->sectionWeights[$section];
+            }
         }
 
-        // Keyword optimization
-        $keywordScore = $this->checkKeywords($headline, ['professional', 'experienced']);
-        $score += $keywordScore['score'];
-        $recommendations = array_merge($recommendations, $keywordScore['recommendations']);
-
-        // Clarity & Impact
-        $impactScore = $this->checkImpactTerms($headline);
-        $score += $impactScore['score'];
-        $recommendations = array_merge($recommendations, $impactScore['recommendations']);
-
         return [
-            'score' => min(100, $score),
-            'recommendations' => $recommendations,
+            'overall_score' => round($totalScore),
+            'section_scores' => $scores,
+            'feedback' => $feedback
         ];
     }
 
-    private function scoreSummary(string $summary): array
+    protected function scoreHeadline($headline)
     {
         $score = 0;
-        $recommendations = [];
+        $feedback = [];
 
-        // Length check (1500-2000 characters optimal)
-        $length = strlen($summary);
-        if ($length >= 1500 && $length <= 2000) {
-            $score += 15;
-        } elseif ($length < 1500) {
-            $score += 5;
-            $recommendations[] = [
-                'priority' => 'high',
-                'message' => 'Your summary is too brief. Aim for 1500-2000 characters to tell your story effectively.',
-            ];
+        // Check length (50-120 characters is optimal)
+        $length = strlen($headline);
+        if ($length >= 50 && $length <= 120) {
+            $score += 25;
         } else {
             $score += 10;
-            $recommendations[] = [
-                'priority' => 'medium',
-                'message' => 'Your summary exceeds the optimal length. Consider making it more concise.',
-            ];
+            if ($length < 50) {
+                $feedback[] = "Headline is too short. Add relevant keywords to reach 50-120 characters.";
+            } else {
+                $feedback[] = "Headline exceeds optimal length. Try to be more concise.";
+            }
         }
 
-        // Storytelling and structure
+        // Check for job title
+        $jobTitles = ['manager', 'developer', 'engineer', 'director', 'specialist', 'analyst', 'consultant'];
+        $hasJobTitle = false;
+        foreach ($jobTitles as $title) {
+            if (stripos($headline, $title) !== false) {
+                $hasJobTitle = true;
+                break;
+            }
+        }
+        if ($hasJobTitle) {
+            $score += 25;
+        } else {
+            $feedback[] = "Include your job title or role for better visibility.";
+        }
+
+        // Check for industry keywords
+        $industryKeywords = ['software', 'marketing', 'sales', 'finance', 'healthcare', 'data'];
+        $keywordCount = 0;
+        foreach ($industryKeywords as $keyword) {
+            if (stripos($headline, $keyword) !== false) {
+                $keywordCount++;
+            }
+        }
+        if ($keywordCount >= 2) {
+            $score += 25;
+        } else {
+            $feedback[] = "Add industry-specific keywords relevant to your field.";
+        }
+
+        // Check for value proposition
+        $impactTerms = ['expert in', 'specialist in', 'focused on', 'helping', 'driving'];
+        $hasValueProp = false;
+        foreach ($impactTerms as $term) {
+            if (stripos($headline, $term) !== false) {
+                $hasValueProp = true;
+                break;
+            }
+        }
+        if ($hasValueProp) {
+            $score += 25;
+        } else {
+            $feedback[] = "Include a value proposition that differentiates you.";
+        }
+
+        return [$score, $feedback];
+    }
+
+    protected function scoreSummary($summary)
+    {
+        $score = 0;
+        $feedback = [];
+
+        // Check length (1500-2000 characters is optimal)
+        $length = strlen($summary);
+        if ($length >= 1500 && $length <= 2000) {
+            $score += 20;
+        } else {
+            $score += 10;
+            if ($length < 1500) {
+                $feedback[] = "Summary is too short. Aim for 1500-2000 characters.";
+            } else {
+                $feedback[] = "Summary exceeds optimal length. Consider making it more concise.";
+            }
+        }
+
+        // Check for achievements
+        $achievementIndicators = ['increased', 'reduced', 'improved', 'achieved', 'led', 'created', '%', '$'];
+        $achievementCount = 0;
+        foreach ($achievementIndicators as $indicator) {
+            if (stripos($summary, $indicator) !== false) {
+                $achievementCount++;
+            }
+        }
+        if ($achievementCount >= 3) {
+            $score += 30;
+        } else {
+            $feedback[] = "Include more quantifiable achievements in your summary.";
+        }
+
+        // Check for storytelling elements
         $paragraphs = explode("\n\n", $summary);
         if (count($paragraphs) >= 3) {
             $score += 25;
         } else {
-            $score += 10;
-            $recommendations[] = [
-                'priority' => 'medium',
-                'message' => 'Structure your summary with clear paragraphs for better readability.',
-            ];
+            $feedback[] = "Structure your summary with clear paragraphs for better readability.";
         }
 
-        // Achievement focus
-        $achievementScore = $this->checkAchievements($summary);
-        $score += $achievementScore['score'];
-        $recommendations = array_merge($recommendations, $achievementScore['recommendations']);
-
-        return [
-            'score' => min(100, $score),
-            'recommendations' => $recommendations,
-        ];
-    }
-
-    private function scoreExperience(array $experience): array
-    {
-        $score = 0;
-        $recommendations = [];
-
-        foreach ($experience as $position) {
-            // Achievement quantification
-            $achievementScore = $this->checkAchievements($position['description'] ?? '');
-            $score += $achievementScore['score'];
-
-            // Responsibility description
-            if (strlen($position['description'] ?? '') > 100) {
-                $score += 25;
-            } else {
-                $score += 10;
-                $recommendations[] = [
-                    'priority' => 'medium',
-                    'message' => "Add more detail to your {$position['title']} role description.",
-                ];
+        // Check for call to action
+        $ctaTerms = ['contact', 'connect', 'reach out', 'email', 'call', 'visit', 'follow'];
+        $hasCTA = false;
+        foreach ($ctaTerms as $term) {
+            if (stripos($summary, $term) !== false) {
+                $hasCTA = true;
+                break;
             }
         }
+        if ($hasCTA) {
+            $score += 25;
+        } else {
+            $feedback[] = "Add a clear call-to-action at the end of your summary.";
+        }
 
-        $score = $score / max(1, count($experience)); // Average score per position
-
-        return [
-            'score' => min(100, $score),
-            'recommendations' => $recommendations,
-        ];
+        return [$score, $feedback];
     }
 
-    private function scoreSkills(array $skills): array
+    protected function scoreExperience($experience)
     {
         $score = 0;
-        $recommendations = [];
+        $feedback = [];
 
-        $skillCount = count($skills);
+        if (empty($experience)) {
+            $feedback[] = "No work experience listed.";
+            return [$score, $feedback];
+        }
+
+        // Check for achievement quantification
+        $achievementPatterns = '/\b(?:increased|improved|achieved|reduced|saved|grew|launched)\b.*?(?:\d+%|\$\d+|\d+ million)/i';
+        preg_match_all($achievementPatterns, $experience, $matches);
+        $achievementCount = count($matches[0]);
+        if ($achievementCount >= 3) {
+            $score += 30;
+        } else {
+            $feedback[] = "Add more quantifiable achievements to your experience section.";
+        }
+
+        // Check for responsibility description
+        $responsibilityTerms = ['managed', 'led', 'directed', 'coordinated', 'developed'];
+        $responsibilityCount = 0;
+        foreach ($responsibilityTerms as $term) {
+            if (stripos($experience, $term) !== false) {
+                $responsibilityCount++;
+            }
+        }
+        if ($responsibilityCount >= 3) {
+            $score += 30;
+        } else {
+            $feedback[] = "Expand role descriptions with leadership and impact details.";
+        }
+
+        // Check for keyword density
+        $keywords = ['developed', 'implemented', 'managed', 'designed', 'analyzed', 'created'];
+        $keywordCount = 0;
+        foreach ($keywords as $keyword) {
+            if (stripos($experience, $keyword) !== false) {
+                $keywordCount++;
+            }
+        }
+        if ($keywordCount >= 4) {
+            $score += 20;
+        } else {
+            $feedback[] = "Include more action verbs and technical terms in your experience descriptions.";
+        }
+
+        // Check for progression logic
+        $positions = explode("\n", $experience);
+        if (count($positions) >= 3) {
+            $score += 20;
+        } else {
+            $feedback[] = "Include additional positions to show career progression.";
+        }
+
+        return [$score, $feedback];
+    }
+
+    protected function scoreEducation($education)
+    {
+        $score = 0;
+        $feedback = [];
+
+        if (empty($education)) {
+            $feedback[] = "No education information listed.";
+            return [$score, $feedback];
+        }
+
+        // Check for relevant coursework
+        if (preg_match('/\b(?:coursework|courses|subjects)\b/i', $education)) {
+            $score += 30;
+        } else {
+            $feedback[] = "Include relevant coursework in your education section.";
+        }
+
+        // Check for achievements
+        if (preg_match('/\b(?:honors|awards|scholarship|dean\'s list)\b/i', $education)) {
+            $score += 30;
+        } else {
+            $feedback[] = "Add academic achievements and honors to your education section.";
+        }
+
+        // Check for degree information
+        if (preg_match('/\b(?:bachelor|master|phd|doctorate|degree)\b/i', $education)) {
+            $score += 40;
+        } else {
+            $feedback[] = "Include your degree information in the education section.";
+        }
+
+        return [$score, $feedback];
+    }
+
+    protected function scoreSkills($skills)
+    {
+        $score = 0;
+        $feedback = [];
+
+        if (empty($skills)) {
+            $feedback[] = "No skills listed.";
+            return [$score, $feedback];
+        }
+
+        // Count skills
+        $skillCount = count(explode(',', $skills));
         if ($skillCount >= 10) {
-            $score += 50;
+            $score += 40;
         } elseif ($skillCount >= 5) {
             $score += 30;
-            $recommendations[] = [
-                'priority' => 'low',
-                'message' => 'Consider adding more skills to showcase your expertise.',
-            ];
         } else {
-            $score += 10;
-            $recommendations[] = [
-                'priority' => 'high',
-                'message' => 'Add more skills to improve your profile visibility.',
-            ];
+            $feedback[] = "Add more skills to your profile.";
         }
 
-        return [
-            'score' => min(100, $score),
-            'recommendations' => $recommendations,
-        ];
-    }
-
-    private function scoreEducation(array $education): array
-    {
-        $score = 0;
-        $recommendations = [];
-
-        foreach ($education as $edu) {
-            if (!empty($edu['degree']) && !empty($edu['field_of_study'])) {
-                $score += 20;
-            } else {
-                $recommendations[] = [
-                    'priority' => 'medium',
-                    'message' => "Complete your education details for {$edu['school']}.",
-                ];
+        // Check for technical skills
+        $technicalTerms = ['programming', 'development', 'analysis', 'design', 'engineering'];
+        $technicalCount = 0;
+        foreach ($technicalTerms as $term) {
+            if (stripos($skills, $term) !== false) {
+                $technicalCount++;
             }
         }
+        if ($technicalCount >= 2) {
+            $score += 30;
+        } else {
+            $feedback[] = "Include more technical skills relevant to your field.";
+        }
 
-        return [
-            'score' => min(100, $score),
-            'recommendations' => $recommendations,
-        ];
+        // Check for soft skills
+        $softSkills = ['leadership', 'communication', 'teamwork', 'problem-solving', 'management'];
+        $softSkillCount = 0;
+        foreach ($softSkills as $skill) {
+            if (stripos($skills, $skill) !== false) {
+                $softSkillCount++;
+            }
+        }
+        if ($softSkillCount >= 2) {
+            $score += 30;
+        } else {
+            $feedback[] = "Add more soft skills to your profile.";
+        }
+
+        return [$score, $feedback];
     }
 
     private function scoreOtherSections(LinkedinProfile $profile): array
@@ -248,102 +372,8 @@ class ProfileScoringService
     {
         $overallScore = 0;
         foreach ($scores as $section => $data) {
-            $overallScore += $data['score'] * self::SECTION_WEIGHTS[$section];
+            $overallScore += $data['score'] * $this->sectionWeights[$section];
         }
         return min(100, $overallScore);
-    }
-
-    private function checkKeywords(string $text, array $genericTerms): array
-    {
-        $score = 0;
-        $recommendations = [];
-
-        $genericCount = 0;
-        foreach ($genericTerms as $term) {
-            if (stripos($text, $term) !== false) {
-                $genericCount++;
-            }
-        }
-
-        if ($genericCount === 0) {
-            $score += 30;
-        } else {
-            $score += max(0, 30 - ($genericCount * 10));
-            $recommendations[] = [
-                'priority' => 'high',
-                'message' => 'Avoid generic terms like "' . implode('", "', $genericTerms) . '". Use more specific industry terms instead.',
-            ];
-        }
-
-        return [
-            'score' => $score,
-            'recommendations' => $recommendations,
-        ];
-    }
-
-    private function checkImpactTerms(string $text): array
-    {
-        $score = 0;
-        $recommendations = [];
-
-        $impactTerms = ['leader', 'expert', 'specialist', 'professional'];
-        $hasImpact = false;
-
-        foreach ($impactTerms as $term) {
-            if (stripos($text, $term) !== false) {
-                $hasImpact = true;
-                break;
-            }
-        }
-
-        if ($hasImpact) {
-            $score += 40;
-        } else {
-            $score += 10;
-            $recommendations[] = [
-                'priority' => 'medium',
-                'message' => 'Add terms that demonstrate your expertise or specialization.',
-            ];
-        }
-
-        return [
-            'score' => $score,
-            'recommendations' => $recommendations,
-        ];
-    }
-
-    private function checkAchievements(string $text): array
-    {
-        $score = 0;
-        $recommendations = [];
-
-        $achievementIndicators = ['increased', 'reduced', 'improved', 'achieved', 'led', 'created', '%', '$'];
-        $achievementCount = 0;
-
-        foreach ($achievementIndicators as $indicator) {
-            if (stripos($text, $indicator) !== false) {
-                $achievementCount++;
-            }
-        }
-
-        if ($achievementCount >= 3) {
-            $score += 25;
-        } elseif ($achievementCount >= 1) {
-            $score += 15;
-            $recommendations[] = [
-                'priority' => 'medium',
-                'message' => 'Include more quantifiable achievements in your description.',
-            ];
-        } else {
-            $recommendations[] = [
-                'priority' => 'high',
-                'message' => 'Add specific achievements with metrics to your description.',
-            ];
-        }
-
-        return [
-            'score' => $score,
-            'recommendations' => $recommendations,
-        ];
     }
 } 
