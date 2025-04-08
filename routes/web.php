@@ -51,8 +51,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
     // Onboarding Routes
-    Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding');
-    Route::post('/onboarding', [OnboardingController::class, 'store']);
+    Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
+    Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
 
     // Dashboard Routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

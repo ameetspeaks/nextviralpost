@@ -152,7 +152,7 @@ class TemplateController extends Controller
     {
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="templates.csv"',
+            'Content-Disposition' => 'attachment; filename="templates_' . date('Y-m-d') . '.csv"',
         ];
 
         $callback = function() {
@@ -167,20 +167,30 @@ class TemplateController extends Controller
                 'category',
                 'post_goal',
                 'virality_factor',
-                'is_active'
+                'is_active',
+                'version',
+                'created_at',
+                'updated_at'
             ]);
 
-            // Add sample data
-            fputcsv($file, [
-                'Example Template',
-                'Create an engaging post about {topic} that will encourage audience participation.',
-                '1',
-                '1',
-                'Engagement',
-                'Increase audience interaction',
-                'Thought-provoking questions',
-                '1'
-            ]);
+            // Get all templates
+            $templates = PromptTemplate::with(['postType', 'tone'])->get();
+
+            foreach ($templates as $template) {
+                fputcsv($file, [
+                    $template->title,
+                    $template->content,
+                    $template->post_type_id,
+                    $template->tone_id,
+                    $template->category,
+                    $template->post_goal,
+                    $template->virality_factor,
+                    $template->is_active ? '1' : '0',
+                    $template->version,
+                    $template->created_at,
+                    $template->updated_at
+                ]);
+            }
 
             fclose($file);
         };
@@ -197,7 +207,8 @@ class TemplateController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,txt'
+            'file' => 'required|file|mimes:csv,txt',
+            'update_existing' => 'boolean'
         ]);
 
         $file = $request->file('file');
@@ -207,35 +218,81 @@ class TemplateController extends Controller
         fgetcsv($handle);
         
         $imported = 0;
+        $updated = 0;
         $errors = [];
+        $emptyRows = 0;
+        $updateExisting = $request->boolean('update_existing', true); // Default to true for updates
+        $rowNumber = 1; // Start from 1 since we skipped header
 
         while (($data = fgetcsv($handle)) !== false) {
+            $rowNumber++;
+            
+            // Skip empty rows
+            if (empty(array_filter($data))) {
+                $emptyRows++;
+                continue;
+            }
+
             try {
-                $template = [
-                    'title' => $data[0],
-                    'content' => $data[1],
-                    'post_type_id' => !empty($data[2]) ? (int) $data[2] : null,
-                    'tone_id' => !empty($data[3]) ? (int) $data[3] : null,
-                    'category' => $data[4],
-                    'post_goal' => $data[5],
-                    'virality_factor' => $data[6],
+                // Validate required fields
+                if (empty($data[0]) || empty($data[1])) {
+                    throw new \Exception("Row {$rowNumber}: Title and content are required fields");
+                }
+
+                // Clean and validate post_type_id and tone_id
+                $postTypeId = !empty($data[2]) ? (int) $data[2] : null;
+                $toneId = !empty($data[3]) ? (int) $data[3] : null;
+
+                // Validate post_type_id and tone_id exist if provided
+                if ($postTypeId && !PostType::where('id', $postTypeId)->exists()) {
+                    throw new \Exception("Row {$rowNumber}: Invalid post_type_id");
+                }
+                if ($toneId && !PostTone::where('id', $toneId)->exists()) {
+                    throw new \Exception("Row {$rowNumber}: Invalid tone_id");
+                }
+
+                $templateData = [
+                    'title' => trim($data[0]),
+                    'content' => trim($data[1]),
+                    'post_type_id' => $postTypeId,
+                    'tone_id' => $toneId,
+                    'category' => !empty($data[4]) ? trim($data[4]) : null,
+                    'post_goal' => !empty($data[5]) ? trim($data[5]) : null,
+                    'virality_factor' => !empty($data[6]) ? trim($data[6]) : null,
                     'is_active' => !empty($data[7]) ? (bool) $data[7] : true,
-                    'slug' => Str::slug($data[0]),
-                    'version' => 1
+                    'slug' => Str::slug(trim($data[0])),
+                    'version' => !empty($data[8]) ? (int) $data[8] : 1
                 ];
 
-                PromptTemplate::create($template);
-                $imported++;
+                // Check for existing template with same post_type_id and tone_id
+                $existingTemplate = PromptTemplate::where('post_type_id', $postTypeId)
+                    ->where('tone_id', $toneId)
+                    ->first();
+
+                if ($existingTemplate) {
+                    // Update existing template
+                    $existingTemplate->update($templateData);
+                    $updated++;
+                } else {
+                    // Create new template
+                    PromptTemplate::create($templateData);
+                    $imported++;
+                }
             } catch (\Exception $e) {
-                $errors[] = "Error importing row: " . implode(',', $data) . " - " . $e->getMessage();
+                $errors[] = $e->getMessage();
             }
         }
 
         fclose($handle);
 
-        $message = "Successfully imported {$imported} templates.";
+        $message = "Import Summary:\n";
+        $message .= "- Successfully imported: {$imported} templates\n";
+        $message .= "- Updated: {$updated} existing templates\n";
+        if ($emptyRows > 0) {
+            $message .= "- Skipped: {$emptyRows} empty rows\n";
+        }
         if (!empty($errors)) {
-            $message .= " However, there were some errors: " . implode('; ', $errors);
+            $message .= "\nErrors encountered:\n" . implode("\n", $errors);
         }
 
         return redirect()->route('admin.templates.index')
