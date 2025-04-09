@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         'firebase.auth' => \App\Http\Middleware\FirebaseAuthentication::class,
         'onboarding' => \App\Http\Middleware\EnsureOnboardingIsComplete::class,
         'subscription' => \App\Http\Middleware\CheckSubscription::class,
+        'check.device' => \App\Http\Middleware\CheckDeviceCompatibility::class,
     ];
 } 

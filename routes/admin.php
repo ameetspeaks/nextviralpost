@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ViralTemplateController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SubscriptionPlanController;
+use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\TrendingPromptController;
 
 Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
@@ -53,10 +55,12 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
     // Viral Templates Management
     Route::get('viral-templates/export', [ViralTemplateController::class, 'export'])->name('viral-templates.export');
     Route::post('viral-templates/import', [ViralTemplateController::class, 'import'])->name('viral-templates.import');
-    Route::resource('viral-templates', ViralTemplateController::class)->parameters([
-        'viral-templates' => 'viral_template'
-    ]);
-    Route::post('viral-templates/{viral_template}/toggle-status', [ViralTemplateController::class, 'toggleStatus'])->name('viral-templates.toggle-status');
+    Route::resource('viral-templates', ViralTemplateController::class);
+    Route::post('viral-templates/{template}/toggle-status', [ViralTemplateController::class, 'toggleStatus'])->name('viral-templates.toggle-status');
+    
+    // Posts Management
+    Route::get('posts', [PostController::class, 'index'])->name('posts.index');
+    Route::get('posts/{post}', [PostController::class, 'show'])->name('posts.show');
     
     // Subscription Plans Management
     Route::resource('subscription-plans', SubscriptionPlanController::class);
@@ -65,4 +69,9 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
     // Settings
     Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+    
+    // Trending Prompts Management
+    Route::resource('trending-prompts', TrendingPromptController::class);
+    Route::post('trending-prompts/{prompt}/toggle-status', [TrendingPromptController::class, 'toggleStatus'])->name('trending-prompts.toggle-status');
+    Route::get('trending-prompts/{trendingPrompt}', [TrendingPromptController::class, 'show'])->name('trending-prompts.show');
 }); 

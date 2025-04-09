@@ -141,7 +141,7 @@
                         <select name="industry_id" id="industry_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             <option value="">Select Industry</option>
                             @foreach($industries as $industry)
-                                <option value="{{ $industry->id }}" {{ old('industry_id', $user->preferences->industry_id ?? '') == $industry->id ? 'selected' : '' }}>
+                                <option value="{{ $industry->id }}" {{ old('industry_id', $user->preference->industry_id ?? '') == $industry->id ? 'selected' : '' }}>
                                     {{ $industry->name }}
                                 </option>
                             @endforeach
@@ -156,7 +156,7 @@
                         <select name="role_id" id="role_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                             <option value="">Select Role</option>
                             @foreach($roles as $role)
-                                <option value="{{ $role->id }}" {{ old('role_id', $user->preferences->role_id ?? '') == $role->id ? 'selected' : '' }}>
+                                <option value="{{ $role->id }}" {{ old('role_id', $user->preference->role_id ?? '') == $role->id ? 'selected' : '' }}>
                                     {{ $role->name }}
                                 </option>
                             @endforeach
@@ -170,7 +170,7 @@
                 <div class="mt-4">
                     <div class="flex items-center">
                         <input type="checkbox" name="onboarding_completed" id="onboarding_completed" value="1" 
-                            {{ old('onboarding_completed', $user->preferences->onboarding_completed ?? false) ? 'checked' : '' }}
+                            {{ old('onboarding_completed', $user->preference->onboarding_completed ?? false) ? 'checked' : '' }}
                             class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
                         <label for="onboarding_completed" class="ml-2 block text-sm text-gray-900">
                             Onboarding Completed

@@ -73,7 +73,7 @@ class UserController extends Controller
 
             // Create user preferences
             if (isset($validated['industry_id']) || isset($validated['role_id'])) {
-                $user->preferences()->create([
+                $user->preference()->create([
                     'industry_id' => $validated['industry_id'],
                     'role_id' => $validated['role_id'],
                     'onboarding_completed' => $validated['onboarding_completed'] ?? false
@@ -169,7 +169,7 @@ class UserController extends Controller
 
             // Update or create user preferences
             if (isset($validated['industry_id']) || isset($validated['role_id'])) {
-                $user->preferences()->updateOrCreate(
+                $user->preference()->updateOrCreate(
                     ['user_id' => $user->id],
                     [
                         'industry_id' => $validated['industry_id'],
@@ -257,7 +257,7 @@ class UserController extends Controller
         ]);
 
         try {
-            $user->preferences()->updateOrCreate(
+            $user->preference()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'industry_id' => $validated['industry_id'],

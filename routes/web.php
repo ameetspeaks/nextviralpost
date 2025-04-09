@@ -15,6 +15,8 @@ use App\Http\Controllers\RepurposedContentController;
 use App\Http\Controllers\TrendingTopicController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\LinkedInProfileController;
+use App\Http\Controllers\DeviceCompatibilityController;
+use App\Http\Controllers\TrendingPromptController;
 
 /*
 |--------------------------------------------------------------------------
@@ -127,4 +129,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/viral-content/search', [ViralContentController::class, 'searchTemplates'])->name('viral-content.search');
     Route::post('/viral-content/generate-ideas', [ViralContentController::class, 'generateContentIdeas'])->name('viral-content.generate-ideas');
     Route::get('/viral-content/analytics', [ViralContentController::class, 'getAnalytics'])->name('viral-content.analytics');
+});
+
+// Device Compatibility Route
+Route::get('/device-compatibility', [DeviceCompatibilityController::class, 'show'])->name('device.compatibility');
+
+// Protected Routes with Device Compatibility Check
+Route::middleware(['auth', 'check.device'])->group(function () {
+    // Add your protected routes here
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // ... other protected routes ...
 });
